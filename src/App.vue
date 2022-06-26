@@ -32,8 +32,11 @@
             <template v-for="(card,index) in rows[0]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'">
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
@@ -42,8 +45,11 @@
             <template v-for="(card,index) in rows[1]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'">
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
@@ -52,8 +58,11 @@
             <template v-for="(card,index) in rows[2]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'">
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
@@ -62,8 +71,11 @@
             <template v-for="(card,index) in rows[3]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'">
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
@@ -72,8 +84,11 @@
             <template v-for="(card,index) in rows[4]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'">
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
@@ -82,8 +97,11 @@
             <template v-for="(card,index) in rows[5]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'">
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
@@ -95,9 +113,9 @@
               </div>
               <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
-                <img class="smallImage" src="../public/clover-black-shape-svgrepo-com.svg" alt="">
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" src="../public/clover-black-shape-svgrepo-com.svg" alt="">
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
 
             </template> 
@@ -115,6 +133,11 @@
 </template>
 
 <script>
+import heartImage from "../public/heart-svgrepo-com.svg"
+import clubImage from "../public/clover-black-shape-svgrepo-com.svg"
+import spadeImage from "../public/spades-svgrepo-com.svg"
+import diamondImage from "../public/diamond-svgrepo-com.svg"
+
 // import HelloWorld from './components/HelloWorld.vue'
 
 export default {
@@ -235,6 +258,25 @@ export default {
       //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
       //   }
       // }
+    },
+
+    getSVG(kind){
+      switch(kind){
+        case 'heart':
+          return heartImage
+        
+        case 'club':
+          return clubImage
+
+        case 'spade':
+          return spadeImage
+
+        case 'diamond':
+          return diamondImage
+
+        default:
+          return
+      }
     },
   },
 
