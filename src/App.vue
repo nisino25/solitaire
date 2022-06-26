@@ -100,7 +100,7 @@
                 <img class="bigImage" src="../public/clover-black-shape-svgrepo-com.svg" alt="">
               </div>
 
-            </template>
+            </template> 
           </div>
 
         </div>
