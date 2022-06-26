@@ -28,94 +28,101 @@
 
           </div> -->
 
-          <div class="child" :class="rows[0].length==0? 'empty' : ''">
+          <div class="child" :class="rows[0].length==0? 'empty' : ''" @drop="onDrop($event, 0)" @dragover.prevent @dragenter.prevent>
             <template v-for="(card,index) in rows[0]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
+  @dragstart="startDrag($event, card)" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                <img v-if="isFinalCard(index,0)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
 
-          <div class="child" :class="rows[1].length==0? 'empty' : ''">
+          <div class="child" :class="rows[1].length==0? 'empty' : ''" @drop="onDrop($event, 1)" @dragover.prevent @dragenter.prevent>
             <template v-for="(card,index) in rows[1]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
+  @dragstart="startDrag($event, card)" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                <img v-if="isFinalCard(index,1)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
 
-          <div class="child" :class="rows[2].length==0? 'empty' : ''">
+          <div class="child" :class="rows[2].length==0? 'empty' : ''" @drop="onDrop($event, 2)" @dragover.prevent @dragenter.prevent>
             <template v-for="(card,index) in rows[2]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
+  @dragstart="startDrag($event, card)" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                <img v-if="isFinalCard(index,2)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
             
-          <div class="child" :class="rows[3].length==0? 'empty' : ''">
+          <div class="child" :class="rows[3].length==0? 'empty' : ''" @drop="onDrop($event, 3)" @dragover.prevent @dragenter.prevent>
             <template v-for="(card,index) in rows[3]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
+  @dragstart="startDrag($event, card)" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                <img v-if="isFinalCard(index,3)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
 
-          <div class="child" :class="rows[4].length==0? 'empty' : ''">
+          <div class="child" :class="rows[4].length==0? 'empty' : ''" @drop="onDrop($event, 4)" @dragover.prevent @dragenter.prevent>
             <template v-for="(card,index) in rows[4]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
+  @dragstart="startDrag($event, card)" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                <img v-if="isFinalCard(index,4)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
 
-          <div class="child" :class="rows[5].length==0? 'empty' : ''">
+          <div class="child" :class="rows[5].length==0? 'empty' : ''" @drop="onDrop($event, 5)" @dragover.prevent @dragenter.prevent>
             <template v-for="(card,index) in rows[5]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
+  @dragstart="startDrag($event, card)" >
                 <span :style="{'color':card.color}">{{card.num}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                <img v-if="isFinalCard(index,5)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
           </div>
 
-          <div class="child" style="margin-right: -6px" :class="rows[6].length==0? 'empty' : ''">
+          <div class="child" style="margin-right: -6px" :class="rows[6].length==0? 'empty' : ''" @drop="onDrop($event, 6)" @dragover.prevent @dragenter.prevent>
             <template v-for="(card,index) in rows[6]" :key="index">
 
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" >
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
+  @dragstart="startDrag($event, card)">
                 <span :style="{'color':card.color}">{{card.num}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                <img v-if="isFinalCard(index,6)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
 
             </template> 
@@ -278,6 +285,40 @@ export default {
           return
       }
     },
+
+    isFinalCard(index,row){
+      let lastIndex = this.rows[row].length
+      if(index+1 == lastIndex){
+        return true
+      }else{
+        return false
+      }
+    },
+
+    startDrag (evt, card) {
+      evt.dataTransfer.dropEffect = 'move'
+      evt.dataTransfer.effectAllowed = 'move'
+      // console.log(evt, card)
+      evt.dataTransfer.setData('cardId', card.cardId)
+    },
+    onDrop (evt, row) {
+      // console.log('dropped irt')
+      const cardID = evt.dataTransfer.getData('cardId')
+      // console.log(`card id is: ${cardID}`)
+      const card = this.deckDetail.find(o => o.cardId === cardID)
+      // console.log(card)
+      card.x = row
+      if(this.rows[row].length ==0){
+        card.y =0
+      }else{
+        card.y = this.rows[row].length
+      }
+
+      // judge if it is dropable or not
+      //    empty space or top left corner as well
+      // flip card once it is gone
+            
+    },
   },
 
   computed:{
@@ -326,7 +367,7 @@ export default {
     this.deckDetail =[]
     while(count<51){
 
-      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: undefined, y: undefined, isOpened: false,color:color})
+      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: undefined, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`})
 
       if(num ==13){
         num = 0
