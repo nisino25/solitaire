@@ -2,39 +2,134 @@
   <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <html>
     <head>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
     </head>
     <body>
       <div class="wrapper">
 
         <div class="detail">
+          <div>
+            <div class="button" @click="reset()">RESET</div>
+          </div>
 
+          <div style=" margin-left:20px;">
+            <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}</span>
+            <br><br>
+            <span>Move Count: {{moveCount}}: {{hasSelectedCard}}</span>
+          </div>
         </div>
+        <hr>
+        <br>
+
+        
 
         <div class="top-section">
-          <div class="child empty"></div>
-          <div class="child empty"></div>
-          <div class="child empty"></div>
-          <div class="child empty" style="margin-right: 33px"></div>
-          <div class="child empty" style="margin-right: 30px"></div>
-          <div class="child " style="margin-right: -6px" @click="startGame()">
-            <div class="back"></div>
+          <div class="finished-area" @click="finishDrop()"></div>
+
+
+        
+          <div class="child" :class="heartList.length==0? 'empty' : ''">
+            <template v-for="(card,index) in heartList" :key="index" >
+              <div v-if="index == heartList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+              </div>
+            </template>
           </div>
+
+          <div class="child" :class="spadeList.length==0? 'empty' : ''">
+            <template v-for="(card,index) in spadeList" :key="index">
+              <div v-if="index == spadeList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+              </div>
+            </template>
+          </div>
+
+          <div class="child" :class="diamondList.length==0? 'empty' : ''" >
+            <template v-for="(card,index) in diamondList" :key="index">
+              <div v-if="index == diamondList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+              </div>
+            </template>
+          </div>
+
+          <div class="child" style="margin-right: 33px" :class="clubList.length==0? 'empty' : ''" >
+            <template v-for="(card,index) in clubList" :key="index">
+              <div v-if="index == clubList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="">
+              </div>
+            </template>
+          </div>
+
+
+
+          <div class="child" :class="sideList.length==0? 'empty' : ''" style="margin-right: 30px">
+            <template v-for="(card,index) in sideList" :key="index">
+              <div v-if="index > sideList.length-4" class="front"  draggable
+    @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" :style="judgeForSide(index)? '':'margin-top:-40px'">
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                <br>
+                <img class="bigImage" :src="getSVG(card.kind)" alt="" v-if="isFinalCard(index,'side')">
+              </div>
+            </template>
+          </div> 
+
+          <div class="child " :class="deckNum == 0? 'empty' : ''" style="margin-right: -6px" @click="startGame()">
+
+            <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
+            <div v-if="deckNum ==0 && hasGameStarted"> <img style="margin-top:20px;" src="../public/iconmonstr-refresh-1.svg" ></div>
+            
+            <div v-if="!hasGameStarted" class="start"><span>START</span> </div>
+            
+            
+
+          </div>
+          <span style="margin-top: 82px; margin-left:-25px; color:FloralWhite; font-weight:bold;">{{deckNum}}</span>
 
         </div>
 
         <div class="bottom-section ">
-          <!-- <div class="child empty">
+          <template v-for="(row,rowIndex) in rows" :key="rowIndex">
+            <div v-if="rowIndex < 7" class="child" :class="row.length==0? 'empty' : ''" >
+              <template v-for="(card,index) in row" :key="index">
 
-          </div> -->
+                <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
+                </div>
 
-          <div class="child" :class="rows[0].length==0? 'empty' : ''" @drop="onDrop($event, 0)" @dragover.prevent @dragenter.prevent>
+                <div v-else class="front" :style="index==0? '':'margin-top:-40px'" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                  <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                  <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                  <br>
+                  <img v-if="isFinalCard(index,rowIndex)" class="bigImage" :src="getSVG(card.kind)" alt="">
+                </div>
+
+              </template>
+            </div>
+
+          </template>
+
+
+          <!-- <div class="child" :class="rows[0].length==0? 'empty' : ''" @click="cardClick(undefined,'drop',0)">
             <template v-for="(card,index) in rows[0]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
-  @dragstart="startDrag($event, card)" >
-                <span :style="{'color':card.color}">{{card.num}}</span>
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img v-if="isFinalCard(index,0)" class="bigImage" :src="getSVG(card.kind)" alt="">
@@ -42,27 +137,25 @@
             </template>
           </div>
 
-          <div class="child" :class="rows[1].length==0? 'empty' : ''" @drop="onDrop($event, 1)" @dragover.prevent @dragenter.prevent>
+          <div class="child" :class="rows[1].length==0? 'empty' : ''" @click="cardClick(undefined,'drop',1)">
             <template v-for="(card,index) in rows[1]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
-  @dragstart="startDrag($event, card)" >
-                <span :style="{'color':card.color}">{{card.num}}</span>
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img v-if="isFinalCard(index,1)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
             </template>
-          </div>
+          </div> 
 
-          <div class="child" :class="rows[2].length==0? 'empty' : ''" @drop="onDrop($event, 2)" @dragover.prevent @dragenter.prevent>
+          <div class="child" :class="rows[2].length==0? 'empty' : ''" @click="cardClick(undefined,'drop',2)">
             <template v-for="(card,index) in rows[2]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
-  @dragstart="startDrag($event, card)" >
-                <span :style="{'color':card.color}">{{card.num}}</span>
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img v-if="isFinalCard(index,2)" class="bigImage" :src="getSVG(card.kind)" alt="">
@@ -70,13 +163,12 @@
             </template>
           </div>
             
-          <div class="child" :class="rows[3].length==0? 'empty' : ''" @drop="onDrop($event, 3)" @dragover.prevent @dragenter.prevent>
+          <div class="child" :class="rows[3].length==0? 'empty' : ''" @click="cardClick(undefined,'drop',3)">
             <template v-for="(card,index) in rows[3]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
-  @dragstart="startDrag($event, card)" >
-                <span :style="{'color':card.color}">{{card.num}}</span>
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img v-if="isFinalCard(index,3)" class="bigImage" :src="getSVG(card.kind)" alt="">
@@ -84,13 +176,12 @@
             </template>
           </div>
 
-          <div class="child" :class="rows[4].length==0? 'empty' : ''" @drop="onDrop($event, 4)" @dragover.prevent @dragenter.prevent>
+          <div class="child" :class="rows[4].length==0? 'empty' : ''" @click="cardClick(undefined,'drop',4)">
             <template v-for="(card,index) in rows[4]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
-  @dragstart="startDrag($event, card)" >
-                <span :style="{'color':card.color}">{{card.num}}</span>
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img v-if="isFinalCard(index,4)" class="bigImage" :src="getSVG(card.kind)" alt="">
@@ -98,13 +189,12 @@
             </template>
           </div>
 
-          <div class="child" :class="rows[5].length==0? 'empty' : ''" @drop="onDrop($event, 5)" @dragover.prevent @dragenter.prevent>
+          <div class="child" :class="rows[5].length==0? 'empty' : ''" @click="cardClick(undefined,'drop',5)">
             <template v-for="(card,index) in rows[5]" :key="index">
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
-  @dragstart="startDrag($event, card)" >
-                <span :style="{'color':card.color}">{{card.num}}</span>
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img v-if="isFinalCard(index,5)" class="bigImage" :src="getSVG(card.kind)" alt="">
@@ -112,25 +202,27 @@
             </template>
           </div>
 
-          <div class="child" style="margin-right: -6px" :class="rows[6].length==0? 'empty' : ''" @drop="onDrop($event, 6)" @dragover.prevent @dragenter.prevent>
+          <div class="child" style="margin-right: -6px" :class="rows[6].length==0? 'empty' : ''" @click="cardClick(undefined,'drop',6)">
             <template v-for="(card,index) in rows[6]" :key="index">
 
               <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
               </div>
-              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable
-  @dragstart="startDrag($event, card)">
-                <span :style="{'color':card.color}">{{card.num}}</span>
+              <div v-else class="front" :style="index==0? '':'margin-top:-40px'" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                <span onmousedown='return false;' onselectstart='return false;' :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img v-if="isFinalCard(index,6)" class="bigImage" :src="getSVG(card.kind)" alt="">
               </div>
 
             </template> 
-          </div>
+          </div> -->
 
         </div>
 
-        <!-- <div @click="test()">button kamo</div> -->
+        <div class="undo-section" @click="allUnselected()">
+
+        </div>
+
 
       </div>
     </body>
@@ -154,21 +246,68 @@ export default {
   },
   data(){
     return{
+      isGameOver: false,
       deckDetail: undefined,
       hasGameStarted: false,
+      sideCount: 0,
+      isMultiple: false,
+      isMixedOver: false,
+
+      shuffledIndex: [],
+
+      moveCount: 0,
+      showingTimer: '00:00',
+      second: 0,
+      minute: 0,
+      hours: 0, 
+
+      hasSelectedCard: false,
+      currentCardId: undefined,
+
     }
   },
 
   methods:{
+    startCounting(){
+      
+      if(this.hours < 2) {
+        setTimeout(() => {
+          this.second++
+          if(this.second == 60){
+            this.second = 0
+            this.minute++
+          }
+          if(this.minute == 60){
+            this.minute =0
+            this.hours++ 
+          }
+          if(this.minute < 10){
+            this.showingTimer = `${this.hours}:0${this.minute}`
+          }else{
+            this.showingTimer = `${this.hours}:${this.minute}`
+          }
+          if(this.second < 10){
+            this.showingTimer = `${this.showingTimer}:0${this.second}`
+          }else{
+            this.showingTimer = `${this.showingTimer}:${this.second}`
+          }
+          // this.showingTimer = `${this.hours}:${this.minute}:${this.second}`
+          this.startCounting()
+        }, 1000)
+      }
+    },
     startGame(){
-      if(this.hasGameStarted) return
+      if(this.hasGameStarted){
+        this.openMoreCard()
+        return
+      }
       this.hasGameStarted = true
       console.log('starting game')
       let count = 0
-      let horizontal =1
+      let horizontal =0
       let vertical = 0
 
-      while(count<21){
+      while(count<28){
         let randomNum =Math.floor(Math.random() * 51);
         if(this.deckDetail[randomNum].location == 'deck'){
           this.deckDetail[randomNum].location = 'field'
@@ -176,31 +315,31 @@ export default {
           this.deckDetail[randomNum].y = vertical
           vertical++
 
-          if(horizontal== 0){
+          if(horizontal== 0 &&  vertical ==1){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
-          }else if(horizontal == 1 && vertical ==1){
+          }else if(horizontal == 1 && vertical ==2){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
-          }else if(horizontal == 2 && vertical ==2){
+          }else if(horizontal == 2 && vertical ==3){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
-          }else if(horizontal == 3 && vertical ==3){
+          }else if(horizontal == 3 && vertical ==4){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
-          }else if(horizontal == 4 && vertical ==4){
+          }else if(horizontal == 4 && vertical ==5){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
-          }else if(horizontal == 5  && vertical ==5){
+          }else if(horizontal == 5  && vertical ==6){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
-          }else if(horizontal == 6  && vertical ==6){
+          }else if(horizontal == 6  && vertical ==7){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
@@ -216,56 +355,107 @@ export default {
 
     },
 
-    test(){
-      console.log(this.rows)
-      // console.log('je')
-      // for(let i in this.rows){
+    openMoreCard(){
+      // if it is A or the ones following then put it into the corner
 
-      //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
-      // }
+      // reset cards to decks
+      if(this.deckNum ==0){
+        this.isMixedOver = true
+        for (let i in this.deckDetail){
+          if(this.deckDetail[i].location == 'side'){
+            this.deckDetail[i].location = 'deck'
+            this.deckDetail[i].sideCount = 0
+          }
+        }
+        return 
+      }
 
-      // for(let i in this.fieldsCards){
-      //   if(this.fieldsCards[i].x ==1) {
+      if(this.isMixedOver){
+        for(let i in this.shuffledIndex){
+          let theIndex = this.shuffledIndex[i]
+          if(this.deckDetail[theIndex].location == 'deck'){
+            this.deckDetail[theIndex].location = 'side'
+            this.deckDetail[theIndex].sideCount= this.sideCount
+            this.deckDetail[theIndex].x = 11
+            this.sideCount++
+            this.moveCount++
+            return
+          }
+        }
+      }
 
-      //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
-      //   }
-      // }
+      let flag = false
+      while(!flag){
+        let randomNum =Math.floor(Math.random() * 52);
+        if(this.deckDetail[randomNum].location == 'deck'){
+          this.shuffledIndex.push(randomNum)
 
-      // for(let i in this.fieldsCards){
-      //   if(this.fieldsCards[i].x ==2) {
-
-      //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
-      //   }
-      // }
-
-      // for(let i in this.fieldsCards){
-      //   if(this.fieldsCards[i].x ==3) {
-
-      //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
-      //   }
-      // }
-
-      // for(let i in this.fieldsCards){
-      //   if(this.fieldsCards[i].x ==4) {
-
-      //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
-      //   }
-      // }
-
-      // for(let i in this.fieldsCards){
-      //   if(this.fieldsCards[i].x ==5) {
-
-      //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
-      //   }
-      // }
-
-      // for(let i in this.fieldsCards){
-      //   if(this.fieldsCards[i].x ==6) {
-
-      //     console.log(`${this.fieldsCards[i].kind}: ${this.fieldsCards[i].num}: x:${this.fieldsCards[i].x}, y:${this.fieldsCards[i].y}  `)
-      //   }
-      // }
+          this.deckDetail[randomNum].location = 'side'
+          this.deckDetail[randomNum].sideCount= this.sideCount
+          this.deckDetail[randomNum].x = 11
+          this.sideCount++
+          flag =true
+          this.moveCount++
+        }
+      }
     },
+
+    test(){
+      // console.log(`${card.cardId}: y: ${card.y}`)
+    },
+
+    reset(){
+      if (!confirm("Would you like to reset the whole game?") ) return
+
+      this.isGameOver=  false,
+    this.deckDetail =  undefined
+    this.hasGameStarted= false
+    this.sideCount=0
+    this.isMultiple=false
+    this.isMixedOver= false
+
+    this.shuffledIndex=[]
+
+    this.moveCount= 0
+    this.showingTimer= '00:00'
+    this.second= 0
+    this.minute= 0
+    this.hours=0 
+
+    // this.startCounting()
+    let count =0
+    let kind = 'club'
+    let num = 1
+    let color = 'black'
+    this.deckDetail =[]
+    while(count<52){
+
+      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 12, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`})
+
+      if(num ==13){
+        num = 0
+      }
+
+      if(count ==12){
+        
+        kind = 'spade'
+      }else if(count == 25){
+        color = 'red'
+        kind = 'heart'
+      }else if(count == 38 ){
+        kind = 'diamond'
+      }
+
+      count++
+      num++
+    
+    }
+
+      
+        
+      
+    },
+
 
     getSVG(kind){
       switch(kind){
@@ -287,6 +477,16 @@ export default {
     },
 
     isFinalCard(index,row){
+      if(row == 'side'){
+        let lastIndex = this.sideList.length
+        
+        if(index+1 == lastIndex){
+          return true
+        }else{
+          return false
+        }
+      }
+      
       let lastIndex = this.rows[row].length
       if(index+1 == lastIndex){
         return true
@@ -295,33 +495,498 @@ export default {
       }
     },
 
+    judgeForSide(index){
+      let theLength = this.sideList.length
+      if(theLength == 1 || theLength == 2 ){
+        if(index == 0){
+          return true
+        }else{
+          return false
+        }
+      }
+
+      if(index == this.sideList.length -3){
+        return true
+      }else{
+        return false
+      }
+    },
+
     startDrag (evt, card) {
+      let row = card.x
+      if(card.location == 'field'){
+        if(card.cardId == this.rows[row][this.rows[row].length-1].cardId ){
+          this.isMultiple = false
+          
+        }else{
+          this.isMultiple = true
+          // console.log('dragging multiple')
+        }
+      }else{
+        this.isMultiple = false
+      }
+      
       evt.dataTransfer.dropEffect = 'move'
       evt.dataTransfer.effectAllowed = 'move'
       // console.log(evt, card)
       evt.dataTransfer.setData('cardId', card.cardId)
     },
-    onDrop (evt, row) {
-      // console.log('dropped irt')
-      const cardID = evt.dataTransfer.getData('cardId')
-      // console.log(`card id is: ${cardID}`)
-      const card = this.deckDetail.find(o => o.cardId === cardID)
-      // console.log(card)
-      card.x = row
-      if(this.rows[row].length ==0){
-        card.y =0
-      }else{
-        card.y = this.rows[row].length
+
+    
+    // onDrop (evt, row) {
+      
+    //   const cardID = evt.dataTransfer.getData('cardId')
+    //   const card = this.deckDetail.find(o => o.cardId === cardID)
+      
+    //   let previousX = card.x
+    //   // let previousY = card.y
+
+    //   let bottomCard = this.rows[row][this.rows[row].length-1]
+    //   // let bottomCard = this.rows[row][this.rows[row].length-1]
+
+
+    //   // dropable judge ing
+
+    //   // if not empty space
+    //   if(!this.rows[row].length ==0){
+    //     // console.log(`bottom card is; ${bottomCard}}`)
+    //     // opposite color only
+    //     if(card.color == bottomCard.color){
+    //       return 
+    //     }
+
+    //     if(card.num !== bottomCard.num -1){
+    //       return
+    //     }
+
+        
+
+    //   }else{
+    //     if(card.num !==  13){
+    //       return
+    //     }
+    //   }
+
+      
+
+
+    //   // flip card once it is gone
+
+    //   if(card.y !==0 && card.location =='field'){
+    //       let newID = this.rows[card.x][card.y-1].cardId
+    //       const leftCard = this.deckDetail.find(o => o.cardId === newID)
+    //       // console.log(`left card is: ${leftCard.cardId}`)
+  
+    //       leftCard.isOpened = true
+
+        
+    //     // console.log('this function called')
+    //   }
+
+
+
+    //   // changin the location for the movwd card
+    //   let count = card.y
+    //   let list = []
+    //   this.moveCount++
+      
+    //   if(this.isMultiple){
+    //     while (count < this.rows[previousX].length ){
+    //       // console.log(this.rows[previousX][count].cardId)
+    //       list.push(this.rows[previousX][count])
+          
+    //       count++
+    //     }
+
+          
+    //     for (let i in list){
+    //       // console.log(`${list[i].cardId}: y: ${list[i].y}`)
+    //       list[i].x = 
+
+    //       if(this.rows[row].length ==0){
+    //         list[i].y =0
+    //       }else{
+    //         list[i].y = this.rows[row].length -1
+    //       }
+    //     }
+
+
+    //   }else{
+
+    //     card.x = row
+    //     card.isOpened = true
+    //     card.location = 'field'
+    //     if(this.rows[row].length ==0){
+    //       card.y =0
+    //     }else{
+    //       card.y = this.rows[row].length -1
+    //     }
+    //   }
+
+    //   // judge if it is dropable or not
+    //   //    empty space or top left corner as well
+
+
+      
+      
+            
+    // },
+
+    finishDrop () {
+      console.log('finish-drop')
+      if(!this.hasSelectedCard){
+        this.allUnselected()
+        return
+      }
+      this.allUnselected()
+      this.hasSelectedCard = false
+        
+      
+      
+      const cardId = this.currentCardId
+      const card = this.deckDetail.find(o => o.cardId === cardId)
+      let previousLocation = card.location 
+      let row = card.x
+      let flag = true
+
+      // only if this is the last card of the row
+      if(card.location !== 'side'){
+        if(cardId !== this.rows[row][this.rows[row].length-1].cardId) return 
       }
 
-      // judge if it is dropable or not
-      //    empty space or top left corner as well
+      // let bottomCard = this.rows[row][this.rows[row].length-1]
+
+
+      // dropable judge ing
+      this.moveCount++
+      
+      switch(card.kind){
+        case 'heart':
+          
+          if(this.heartList.length == card.num-1){
+            card.location = 'finished'
+            card.x = undefined
+            flag = false
+          }
+          break;
+
+        case 'spade':
+          
+          if(this.spadeList.length == card.num-1){
+            card.location = 'finished'
+            card.x = undefined
+            flag = false
+          }
+          break;
+        
+        case 'diamond':
+          
+          if(this.diamondList.length == card.num-1){
+            card.location = 'finished'
+            card.x = undefined
+            flag = false
+          }
+          break;
+        
+        case 'club':
+          
+          if(this.clubList.length == card.num-1){
+            card.location = 'finished'
+            card.x = undefined
+            flag = false
+          }
+          break;
+      }
+      
+
       // flip card once it is gone
+
+      if(previousLocation == 'side'){
+        flag =false
+      }else{
+        flag= true
+      }
+
+      if(flag){
+        if(card.y !==0){
+
+          
+          // console.log('this function called')
+          let newID = this.rows[row][this.rows[row].length-1].cardId
+          const leftCard = this.deckDetail.find(o => o.cardId === newID)
+          // console.log(`left card is: ${leftCard.cardId}`)
+  
+          leftCard.isOpened = true
+        }
+      }
+      
+
+
+      
+      
             
     },
+
+    convertNum(num){
+      if(num == 11){
+        return 'J'
+      }else if(num == 12){
+        return 'Q'
+      }else if(num == 13){
+        return 'K'
+      }else{
+        return num
+      }
+    },
+
+    cardClick(card,action,newRow){
+      
+      
+      
+      if(!this.hasSelectedCard){
+        if(!card){
+          return
+        } 
+
+        this.currentCardId = card.cardId
+        let row = card.x
+        let height = card.y
+        if(card.location == 'field'){
+          if(card.cardId == this.rows[row][this.rows[row].length-1].cardId ){
+            this.isMultiple = false
+            
+          }else{
+            this.isMultiple = true
+            console.log('mobings multiple')
+            for(let i in this.rows[row]){
+              if(this.rows[row][i].y > height){
+                this.rows[row][i].selected= true
+              }
+            }
+
+            
+          }
+        }else{
+          this.isMultiple = false
+        }
+        
+        // evt.dataTransfer.dropEffect = 'move'
+        // evt.dataTransfer.effectAllowed = 'move'
+        this.currentCardId = card.cardId
+        // evt.dataTransfer.setData('cardId', card.cardId)
+        // check if it is the final card of the low or not
+
+        // toggle 
+        let currentCard = this.deckDetail.find(o => o.cardId === card.cardId)
+        currentCard.selected= true
+        
+        this.hasSelectedCard = true
+
+
+
+
+
+
+
+        // --------------------------------------------
+        
+
+      }else{
+        console.log('')
+        if(!action == 'drop' ){
+          this.toEmptySpace(newRow)
+          return
+        }
+        if(!card){
+          this.toEmptySpace(newRow)
+          return
+        }
+
+        
+        const current = this.deckDetail.find(o => o.cardId === card.cardId)
+        const previous = this.deckDetail.find(o => o.cardId === this.currentCardId)
+        
+
+        // dropable judge ing
+        if(!this.rows[current.x].length ==0){
+          if(previous.color == current.color){
+            this.hasSelectedCard = false
+            this.allUnselected() 
+            return 
+          }
+
+          if(previous.num !== current.num -1){
+            this.hasSelectedCard = false
+            this.allUnselected()
+            return
+          }
+
+        }
+        
+
+
+        
+
+
+        // flip card once it is gone
+        if(previous.y !==0 && previous.location =='field'){
+            let newID = this.rows[previous.x][previous.y-1].cardId
+            const leftCard = this.deckDetail.find(o => o.cardId === newID)
+            // console.log(`left card is: ${leftCard.cardId}`)
+    
+            leftCard.isOpened = true
+
+          
+          // console.log('this function called')
+        }
+
+
+
+        // changin the location for the movwd card
+        let count = previous.y
+        let list = []
+        this.moveCount++
+        
+        if(this.isMultiple){
+          console.log(`not multiple`)
+          while (count < this.rows[previous.x].length ){
+            // console.log(this.rows[previousX][count].cardId)
+            list.push(this.rows[previous.x][count])
+            
+            count++
+          }
+
+            
+          for (let i in list){
+            
+            list[i].x = current.x
+
+            if(this.rows[previous.x].length ==0){
+              list[i].y =0
+            }else{
+              list[i].y = this.rows[previous.x].length -1
+            }
+          }
+
+
+        }else{
+          console.log(`not multiple`)
+
+          previous.x = current.x
+          previous.isOpened = true
+          previous.location = 'field'
+          if(this.rows[current.x].length ==0){
+            previous.y = 0
+          }else{
+            previous.y = current.y + 1
+
+          }
+        }
+
+        console.log(`previous card is: ${previous.cardId}, x:${previous.x}, y:$
+        {previous.y}`)
+
+        console.log(`current card is: ${current.cardId}, x:${current.x}, y:${current.y}`)
+
+        // let newCard = this.deckDetail.find(o => o.cardId === previous.cardId)
+        // newCard = previous
+        // console.log(newCard)
+
+        // dropping effect
+        this.hasSelectedCard = false
+        this.allUnselected()
+        // set  all selected false
+    
+      }
+    },
+
+    allUnselected(){
+      for(let i in this.deckDetail){
+        this.deckDetail[i].selected = false
+      }
+    },
+
+    toEmptySpace(newRow){
+      console.log('dropping to empty space')
+      const previous = this.deckDetail.find(o => o.cardId === this.currentCardId)
+      
+      // judging
+      if(previous.num !==  13){
+        this.hasSelectedCard = false
+        this.allUnselected()
+        return
+      }
+
+      // flip card once it is gone
+      if(previous.y !==0 && previous.location =='field'){
+        let newID = this.rows[previous.x][previous.y-1].cardId
+        const leftCard = this.deckDetail.find(o => o.cardId === newID)
+        leftCard.isOpened = true
+      }
+
+      // changin the location for the movwd card
+      let count = previous.y
+      let list = []
+      this.moveCount++
+      
+      if(this.isMultiple){
+        console.log(`not multiple`)
+        while (count < this.rows[previous.x].length ){
+          list.push(this.rows[previous.x][count])
+          count++
+        }
+
+          
+        for (let i in list){
+          
+          list[i].x = newRow
+
+          if(this.rows[newRow].length ==0){
+            list[i].y =0
+          }else{
+            list[i].y = this.rows[newRow].length -1
+          }
+        }
+
+
+      }else{
+        console.log(`not multiple`)
+
+        previous.x = newRow
+        previous.isOpened = true
+        previous.location = 'field'
+        if(this.rows[newRow].length ==0){
+          previous.y = 0
+        }else{
+          previous.y = this.rows[newRow].y + 1
+
+        }
+      }
+
+
+      // let newCard = this.deckDetail.find(o => o.cardId === previous.cardId)
+      // newCard = previous
+      // console.log(newCard)
+
+      // dropping effect
+      this.hasSelectedCard = false
+      this.allUnselected()
+      // set  all selected false
+
+
+    }
+      
+
+
+
+    // moveItToCorner(){
+    //   console.log('trying still')
+    // },
+
   },
 
   computed:{
+
     fieldsCards: function(){
       let list = []
       for (let i in this.deckDetail){
@@ -341,7 +1006,7 @@ export default {
 
 
       let count = 0
-      while(count< 7){
+      while(count< 13){
         
         let list = []
         for (let i in this.fieldsCards){
@@ -356,18 +1021,110 @@ export default {
 
       return baseList
       
+    },
+
+    sideList: function(){
+      let list = []
+      for (let i in this.deckDetail){
+        if(this.deckDetail[i].location == 'side'){
+          list.push(this.deckDetail[i])
+        }
+      }
+      list = list.sort(function(a, b) {
+        return parseFloat(a.sideCount) - parseFloat(b.sideCount);
+      });
+      return list
+    },
+
+    heartList:function(){
+      let list = []
+      for (let i in this.deckDetail){
+        if(this.deckDetail[i].location == 'finished' && this.deckDetail[i].kind == 'heart'){
+
+          list.push(this.deckDetail[i])
+        }
+      }
+      list = list.sort(function(a, b) {
+        return parseFloat(a.num) - parseFloat(b.num);
+      });
+      return list
+    },
+    clubList:function(){
+      let list = []
+      for (let i in this.deckDetail){
+        if(this.deckDetail[i].location == 'finished' && this.deckDetail[i].kind == 'club'){
+
+          list.push(this.deckDetail[i])
+        }
+      }
+      list = list.sort(function(a, b) {
+        return parseFloat(a.num) - parseFloat(b.num);
+      });
+      return list
+    },
+    spadeList:function(){
+      let list = []
+      for (let i in this.deckDetail){
+        if(this.deckDetail[i].location == 'finished' && this.deckDetail[i].kind == 'spade'){
+
+          list.push(this.deckDetail[i])
+        }
+      }
+      list = list.sort(function(a, b) {
+        return parseFloat(a.num) - parseFloat(b.num);
+      });
+      return list
+    },
+    diamondList:function(){
+      let list = []
+      for (let i in this.deckDetail){
+        if(this.deckDetail[i].location == 'finished' && this.deckDetail[i].kind == 'diamond'){
+
+          list.push(this.deckDetail[i])
+        }
+      }
+      list = list.sort(function(a, b) {
+        return parseFloat(a.num) - parseFloat(b.num);
+      });
+      return list
+    },
+
+    deckNum: function(){
+      let count =0
+      for (let i in this.deckDetail){
+        if(this.deckDetail[i].location == 'deck'){
+          count++
+        }
+      }
+      return count
     }
   },
 
   mounted: function(){
+    this.isGameOver=  false,
+    this.deckDetail =  undefined
+    this.hasGameStarted= false
+    this.sideCount=0
+    this.isMultiple=false
+    this.isMixedOver= false
+
+    this.shuffledIndex=[]
+
+    this.moveCount= 0
+    this.showingTimer= '00:00'
+    this.second= 0
+    this.minute= 0
+    this.hours=0 
+
+    this.startCounting()
     let count =0
     let kind = 'club'
     let num = 1
     let color = 'black'
     this.deckDetail =[]
-    while(count<51){
+    while(count<52){
 
-      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: undefined, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`})
+      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 12, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`, selected:false})
 
       if(num ==13){
         num = 0
@@ -390,6 +1147,44 @@ export default {
 
     // console.log(this.deckDetail)
   },
+
+  watch:{
+
+    rows: {
+      
+      deep:true,
+      handler() {
+        if(!this.hasGameStarted) return
+        let count = 0
+        let flag = true
+        let falseCount= 0
+        if(falseCount == 1) return
+        while(count < 7){
+          for(let i in this.rows[count]){
+            if(!this.rows[count][i].isOpened){
+              flag= false
+              falseCount++
+              
+            }
+            
+          }
+
+          
+          count++
+        }
+
+        if(!flag){
+          // console.log(`still going on with: ${falseCount} `)
+          return 
+        }
+        console.log(' game is over')
+        alert('You Won!');
+        this.isGameOver = true
+        
+
+      }
+    },
+  },
 }
 </script>
 
@@ -407,25 +1202,79 @@ body {
    /* width: 50%; */
   margin: 0 auto;
 
+
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+
 }
 
 
 .detail{
-  background-color: grey;
-  height:100px;
+  /* background-color: grey; */
+  height:75px;
   margin-top: 50px;
+  text-align: start;
+  margin-left: -15px;
 }
+
+hr{
+  height: 0.5px;
+  background-color: black;
+  border: none;
+}
+
+.button {
+  position: absolute;
+  margin-left: 290px;
+  /* right: 0; */
+
+  background-color:  #008CBA; /* Green */
+  border-width: 1px 1px 1px 1px;
+  border-color: black;
+  border-style: solid;
+  color: white;
+  padding: 10px 15px;
+  text-align: center;
+  text-decoration: none;
+  /* display: inline-block; */
+  font-size: 13px;
+  /* margin: 4px 2px; */
+  cursor: pointer;
+}
+
+
+.finished-area{
+  position:absolute;
+  /* background-color: blue; */
+  top:135px;
+  opacity: 0.4;
+  width:200px;
+  height:170px;
+  display: flex;
+  z-index: 100;
+}
+
 
 .top-section{
   /* background-color: blue; */
-  height:120px;
+  height:140px;
   display: flex;
 }
 
 .bottom-section{
   /* background-color: yellow; */
-  height:420px;
+  height:400px;
   display: flex;
+}
+
+.undo-section{
+  /* background-color: yellow; */
+  height:500px;
+  /* display: flex; */
 }
 
 .child{
@@ -454,11 +1303,36 @@ body {
   padding-top: 3px;
 }
 
+.start{
+  background-color: crimson;
+  border-width: 3px 3px 3px 3px;
+  border-color: FloralWhite;
+  border-style: solid;
+  margin-top:-2px;
+  height:59px;
+  top:0;
+
+  
+
+  line-height: 54px;
+  text-align: center;
+}
+
+.start span{
+  display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+  color:floralwhite;
+  font-size: 70%;
+
+}
+
 .front{
-  background-color: floralwhite;
+  
   border-width: 3px 3px 3px 3px;
   border-radius: 5px;
-  border-color: dimgrey;
+  
+  
   border-style: solid;
   margin-top:-2px;
   height:59px;
@@ -466,14 +1340,27 @@ body {
   font-size: 95%;
   padding-top: 3px;
 }
+.card-selected{
+  box-shadow: 0px 0px 20px gray;
+  transition: 0.3s;
+  /* animate: glow; */
+  background-color: #f0e130;
+  border-color: #f0e130;
+}
+
+.card-not-selected{
+  
+  background-color: floralwhite;
+  border-color: dimgrey;
+}
 
 .smallImage{
   position: relative;
   /* left:10px; */
   /* margin-top: 10px; */
   /* padding-top: 4px; */
-  /* margin-left: 0px; */
-  width:15px;
+  margin-left: -1px;
+  width:14px;
   height:auto;
 }
 
