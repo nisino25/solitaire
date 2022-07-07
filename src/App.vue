@@ -19,12 +19,11 @@
 
           <div style=" margin-left:20px;">
             <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}</span>
-            <br><br>
-            <span>Move Count: {{moveCount}}: {{hasSelectedCard}}</span>
+            <br>
+            <span style="margin-top:50px">Move Count: {{moveCount}}: {{hasSelectedCard}}</span>
           </div>
         </div>
         <hr>
-        <br>
 
         
 
@@ -1059,8 +1058,8 @@ body {
 
 .detail{
   /* background-color: grey; */
-  height:75px;
-  margin-top: 30px;
+  height:50px;
+  margin-top: 10px;
   text-align: start;
   margin-left: -15px;
 }
@@ -1081,7 +1080,7 @@ hr{
   border-color: black;
   border-style: solid;
   color: white;
-  padding: 10px 15px;
+  padding: 7px 10px;
   text-align: center;
   text-decoration: none;
   /* display: inline-block; */
@@ -1093,11 +1092,11 @@ hr{
 
 .finished-area{
   position:absolute;
-  /* background-color: blue; */
-  top:135px;
+  background-color: blue;
+  top:100px;
   opacity: 0.4;
   width:200px;
-  height:170px;
+  height:140px;
   display: flex;
   z-index: 100;
 }
@@ -1105,7 +1104,7 @@ hr{
 
 .top-section{
   /* background-color: blue; */
-  height:140px;
+  height:120px;
   display: flex;
 }
 
