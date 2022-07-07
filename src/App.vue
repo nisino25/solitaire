@@ -1032,6 +1032,7 @@ export default {
 </script>
 
 <style>
+
 body {
   overflow: hidden;
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -1059,7 +1060,7 @@ body {
 .detail{
   /* background-color: grey; */
   height:75px;
-  margin-top: 50px;
+  margin-top: 30px;
   text-align: start;
   margin-left: -15px;
 }
@@ -1110,13 +1111,13 @@ hr{
 
 .bottom-section{
   /* background-color: yellow; */
-  height:400px;
+  height:300px;
   display: flex;
 }
 
 .undo-section{
   /* background-color: yellow; */
-  height:500px;
+  /* height:500px; */
   /* display: flex; */
 }
 
