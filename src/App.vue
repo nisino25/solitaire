@@ -1092,7 +1092,7 @@ hr{
 
 .finished-area{
   position:absolute;
-  background-color: blue;
+  /* background-color: blue; */
   top:100px;
   opacity: 0.4;
   width:200px;
