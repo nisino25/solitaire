@@ -1033,6 +1033,7 @@ export default {
 <style>
 
 body {
+  touch-action: manipulation;
   overflow: hidden;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -1092,8 +1093,8 @@ hr{
 
 .finished-area{
   position:absolute;
-  /* background-color: blue; */
-  top:100px;
+  background-color: blue;
+  top:70px;
   opacity: 0.4;
   width:200px;
   height:140px;
@@ -1104,13 +1105,13 @@ hr{
 
 .top-section{
   /* background-color: blue; */
-  height:120px;
+  height:130px;
   display: flex;
 }
 
 .bottom-section{
   /* background-color: yellow; */
-  height:300px;
+  height:350px;
   display: flex;
 }
 
