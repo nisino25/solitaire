@@ -14,13 +14,14 @@
           <div>
             <div class="button" @click="reset()">RESET</div>
             <!-- <br><br><br>
-            <div class="button" @click="spacetate = !spacetate">spactate</div> -->
+            <div class="button" @click="spectate = !spectate">spactate</div> -->
           </div>
 
           <div style=" margin-left:20px;">
-            <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}</span>
-            <br>
-            <span style="margin-top:50px">Move Count: {{moveCount}}: {{hasSelectedCard}}</span>
+            <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}:</span>
+            &nbsp;
+            <span style="margin-top:50px">Move Count: {{moveCount}}</span>
+            <span @click="spectate = !spectate" style="background-color: aqua; ">:{{spectate}}:</span>
           </div>
         </div>
         <hr>
@@ -122,7 +123,7 @@
 
                 <template v-for="(card,index) in row" :key="index" >
   
-                  <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'">
+                  <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'" @click="cardClick(card,'pick')">
                   </div>
   
                   <div v-else class="front" :style="index==0? '':'margin-top:-40px'" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
@@ -191,7 +192,7 @@ export default {
       currentCardId: undefined,
 
 
-      spacetate: false
+      spectate: false
     }
   },
 
@@ -349,7 +350,7 @@ export default {
     this.second= 0
     this.minute= 0
     this.hours=0 
-    this.spacetate = false
+    this.spectate = false
 
     // this.startCounting()
     let count =0
@@ -385,7 +386,6 @@ export default {
         
       
     },
-
 
     getSVG(kind){
       switch(kind){
@@ -442,31 +442,11 @@ export default {
       }
     },
 
-    startDrag (evt, card) {
-      let row = card.x
-      if(card.location == 'field'){
-        if(card.cardId == this.rows[row][this.rows[row].length-1].cardId ){
-          this.isMultiple = false
-          
-        }else{
-          this.isMultiple = true
-          // console.log('dragging multiple')
-        }
-      }else{
-        this.isMultiple = false
-      }
-      
-      evt.dataTransfer.dropEffect = 'move'
-      evt.dataTransfer.effectAllowed = 'move'
-      // console.log(evt, card)
-      evt.dataTransfer.setData('cardId', card.cardId)
-    },
-
     
     
 
     finishDrop () {
-      console.log('finish-drop')
+      // console.log('finish-drop')
       if(!this.hasSelectedCard){
         this.allUnselected()
         return
@@ -573,7 +553,7 @@ export default {
     },
 
     cardClick(card){
-      if(this.spacetate){
+      if((this.spectate || !card.isOpened) && card.location =='field' ){
         // console.log(`card is: ${card}`)
         console.log(`specysyr card is: ${card.cardId}, x:${card.x}, y:${card.y}`)
         return 
@@ -681,7 +661,7 @@ export default {
         this.moveCount++
         
         if(this.isMultiple){
-          console.log(`not multiple`)
+          // console.log(`not multiple`)
           while (count < this.rows[previous.x].length ){
             // console.log(this.rows[previousX][count].cardId)
             list.push(this.rows[previous.x][count])
@@ -703,7 +683,6 @@ export default {
 
 
         }else{
-          console.log(`not multiple`)
 
           previous.x = current.x
           previous.isOpened = true
@@ -719,9 +698,9 @@ export default {
           }
         }
         // console.log('is multiple move?: ' + this.isMultiple)
-        console.log(`previous card is: ${previous.cardId}, x:${previous.x}, y:${previous.y}`)
+        // console.log(`previous card is: ${previous.cardId}, x:${previous.x}, y:${previous.y}`)
 
-        console.log(`current card is: ${current.cardId}, x:${current.x}, y:${current.y}`)
+        // console.log(`current card is: ${current.cardId}, x:${current.x}, y:${current.y}`)
 
         // let newCard = this.deckDetail.find(o => o.cardId === previous.cardId)
         // newCard = previous
@@ -751,14 +730,12 @@ export default {
         this.allUnselected()
         return
       }
-
       // flip card once it is gone
       if(previous.y !==0 && previous.location =='field'){
         let newID = this.rows[previous.x][previous.y-1].cardId
         const leftCard = this.deckDetail.find(o => o.cardId === newID)
         leftCard.isOpened = true
       }
-
       // changin the location for the movwd card
       let count = previous.y
       let list = []
@@ -769,23 +746,18 @@ export default {
           list.push(this.rows[previous.x][count])
           count++
         }
-
           
         for (let i in list){
           
           list[i].x = newRow
-
           if(this.rows[newRow].length ==0){
             list[i].y =0
           }else{
             list[i].y = this.rows[newRow].length -1
           }
         }
-
-
       }else{
-        console.log(`at least here`)
-
+        // console.log(`at least here`)
         
         previous.isOpened = true
         previous.location = 'field'
@@ -800,26 +772,16 @@ export default {
         }
         previous.x = newRow
       }
-
-
       // let newCard = this.deckDetail.find(o => o.cardId === previous.cardId)
       // newCard = previous
       // console.log(newCard)
-
       // dropping effect
       this.hasSelectedCard = false
       this.allUnselected()
       // set  all selected false
-
-
     }
-      
 
 
-
-    // moveItToCorner(){
-    //   console.log('trying still')
-    // },
 
   },
 
@@ -995,6 +957,14 @@ export default {
       
       deep:true,
       handler() {
+        for(let i in this.deckDetail){
+          if(this.deckDetail[i].location == 'field'){
+            
+            if(this.deckDetail[i].y < 0  ){
+              console.log(`${this.deckDetail[i].cardId}:  ${this.deckDetail[i].x}, ${this.deckDetail[i].y}`)
+            }
+          }
+        }
         if(!this.hasGameStarted) return
         let count = 0
         let flag = true
@@ -1018,10 +988,13 @@ export default {
           // console.log(`still going on with: ${falseCount} `)
           return 
         }
+        if(!this.isGameOver){
+          alert('You Won!');
+
+        }
         console.log(' game is over')
-        alert('You Won!');
         this.isGameOver = true
-        this.spacetate = true
+        this.spectate = true
         
 
       }
@@ -1059,7 +1032,7 @@ body {
 
 .detail{
   /* background-color: grey; */
-  height:50px;
+  height:30px;
   margin-top: 10px;
   text-align: start;
   margin-left: -15px;
@@ -1069,9 +1042,12 @@ hr{
   height: 0.5px;
   background-color: black;
   border: none;
+  margin-top: 2px;
+  margin-bottom: 2px;
 }
 
 .button {
+  margin-top:-5px;
   position: absolute;
   margin-left: 290px;
   /* right: 0; */
@@ -1081,7 +1057,9 @@ hr{
   border-color: black;
   border-style: solid;
   color: white;
-  padding: 7px 10px;
+
+  padding: 5px 10px;
+
   text-align: center;
   text-decoration: none;
   /* display: inline-block; */
@@ -1093,11 +1071,11 @@ hr{
 
 .finished-area{
   position:absolute;
-  background-color: blue;
-  top:70px;
+  /* background-color: blue; */
+  top:45px;
   opacity: 0.4;
   width:200px;
-  height:140px;
+  height:130px;
   display: flex;
   z-index: 100;
 }
@@ -1111,7 +1089,7 @@ hr{
 
 .bottom-section{
   /* background-color: yellow; */
-  height:350px;
+  height:450px;
   display: flex;
 }
 
@@ -1142,7 +1120,7 @@ hr{
   border-color: FloralWhite;
   border-style: solid;
   margin-top:-2px;
-  height:59px;
+  height:50px;
   top:0;
   padding-top: 3px;
 }
