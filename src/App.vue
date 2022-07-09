@@ -21,7 +21,7 @@
             <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}:</span>
             &nbsp;
             <span style="margin-top:50px">Move Count: {{moveCount}}</span>
-            <span @click="spectate = !spectate" style="background-color: aqua; ">:{{spectate}}:</span>
+            <span @click="spectate = !spectate" style="background-color: aqua; ">:{{hasSelectedCard}}:</span>
           </div>
         </div>
         <hr>
@@ -29,13 +29,13 @@
         
 
         <div class="top-section">
-          <div class="finished-area" @click="finishDrop()"></div>
+          <div class="finished-area" v-if="hasSelectedCard" @click="finishDrop()"></div>
 
 
         
           <div class="child" :class="heartList.length==0? 'empty' : ''">
             <template v-for="(card,index) in heartList" :key="index" >
-              <div v-if="index == heartList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+              <div v-if="index == heartList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
@@ -46,7 +46,7 @@
 
           <div class="child" :class="spadeList.length==0? 'empty' : ''">
             <template v-for="(card,index) in spadeList" :key="index">
-              <div v-if="index == spadeList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+              <div v-if="index == spadeList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
@@ -57,7 +57,7 @@
 
           <div class="child" :class="diamondList.length==0? 'empty' : ''" >
             <template v-for="(card,index) in diamondList" :key="index">
-              <div v-if="index == diamondList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+              <div v-if="index == diamondList.length-1" class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
@@ -68,7 +68,7 @@
 
           <div class="child" style="margin-right: 33px" :class="clubList.length==0? 'empty' : ''" >
             <template v-for="(card,index) in clubList" :key="index">
-              <div v-if="index == clubList.length-1" class="front" draggable @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
+              <div v-if="index == clubList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
@@ -81,16 +81,14 @@
 
           <div class="child" :class="sideList.length==0? 'empty' : ''" style="margin-right: 30px">
             <template v-for="(card,index) in sideList" :key="index">
-              <div v-if="index > sideList.length-4 && sideList.length == index+1" class="front"  draggable
-    @dragstart="startDrag($event, card)" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" :style="judgeForSide(index)? '':'margin-top:-40px'">
+              <div v-if="index > sideList.length-4 && sideList.length == index+1" class="front"  draggable @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" :style="judgeForSide(index)? '':'margin-top:-40px'">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
                 <br>
                 <img class="bigImage" :src="getSVG(card.kind)" alt="" v-if="isFinalCard(index,'side')">
               </div>
 
-              <div v-if="index > sideList.length-4 && sideList.length !== index+1" class="front"  draggable
-    @dragstart="startDrag($event, card)"   :class="[card.selected ? 'card-selected' : 'card-not-selected']" :style="judgeForSide(index)? '':'margin-top:-40px'">
+              <div v-if="index > sideList.length-4 && sideList.length !== index+1" class="front" :class="[card.selected ? 'card-selected' : 'card-not-selected']" :style="judgeForSide(index)? '':'margin-top:-40px'">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                 <!-- <span :style="{'color':card.color}">{{index}}</span> -->
                 <img class="smallImage" :src="getSVG(card.kind)" alt="">
@@ -123,10 +121,10 @@
 
                 <template v-for="(card,index) in row" :key="index" >
   
-                  <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-40px'" @click="cardClick(card,'pick')">
+                  <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-45px'" @click="cardClick(card,'pick')">
                   </div>
   
-                  <div v-else class="front" :style="index==0? '':'margin-top:-40px'" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                  <div v-else class="front" :style="index==0? '':'margin-top:-43px'" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
                     <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                     <img class="smallImage" :src="getSVG(card.kind)" alt="">
                     <br>
@@ -463,7 +461,9 @@ export default {
       let flag = true
 
       // only if this is the last card of the row
-      if(card.location !== 'side'){
+      if(card.location == 'finished') return
+      
+      if(card.location == 'field'){
         if(cardId !== this.rows[row][this.rows[row].length-1].cardId) return 
       }
 
@@ -553,7 +553,8 @@ export default {
     },
 
     cardClick(card){
-      if((this.spectate || !card.isOpened) && card.location =='field' ){
+      // console.log(`card is : ${card.cardId}, ${card.location}`)
+      if((this.spectate || !card.isOpened) && card.location == 'field' ){
         // console.log(`card is: ${card}`)
         console.log(`specysyr card is: ${card.cardId}, x:${card.x}, y:${card.y}`)
         return 
@@ -564,7 +565,8 @@ export default {
       if(!this.hasSelectedCard){
         if(!card){
           return
-        } 
+        }
+        // if(card.location )
 
         this.currentCardId = card.cardId
         let row = card.x
@@ -615,6 +617,7 @@ export default {
         const previous = this.deckDetail.find(o => o.cardId === this.currentCardId)
 
         if(current.location !== 'field') {
+          this.hasSelectedCard = false
           this.allUnselected()
           return
         }
@@ -721,7 +724,7 @@ export default {
     },
 
     toEmptySpace(newRow){
-      console.log('dropping to empty space')
+      // console.log('dropping to empty space')
       const previous = this.deckDetail.find(o => o.cardId === this.currentCardId)
       
       // judging
