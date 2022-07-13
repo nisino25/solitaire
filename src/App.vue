@@ -21,12 +21,9 @@
             <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}:</span>
             &nbsp;
             <span style="margin-top:50px">Move Count: {{moveCount}}</span>
-            <span @click="spectate = !spectate" style="background-color: aqua; ">:{{hasSelectedCard}}:</span>
+            <!-- <span @click="spectate = !spectate" style="background-color: aqua; ">:{{hasSelectedCard}}:</span> -->
           </div>
         </div>
-        <hr>
-
-        
 
         <div class="top-section">
           <div class="finished-area" v-if="hasSelectedCard" @click="finishDrop()"></div>
@@ -109,27 +106,49 @@
             
 
           </div>
-          <span style="margin-top: 82px; margin-left:-25px; color:FloralWhite; font-weight:bold;">{{deckNum}}</span>
+          <span style="margin-top: 62px; margin-left:-25px; color:FloralWhite; font-weight:bold;">{{deckNum}}</span>
 
         </div>
 
-        <div class="bottom-section ">
-          <template v-for="(row,rowIndex) in rows" :key="rowIndex">
-            <div v-if="rowIndex < 7" >
-              <div v-if="row.length == 0" class="empty child" @click="toEmptySpace(rowIndex)"></div>
-              <div v-else class="child">
+        <div class="bottom-section" >
 
-                <template v-for="(card,index) in row" :key="index" >
-  
-                  <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-45px'" @click="cardClick(card,'pick')">
+          <!-- <template v-for="(row,rowIndex) in rows" :key="rowIndex" >
+            <div v-if="rowIndex < 7"  >
+              <div v-if="row.length == 0" class="empty child" @click="toEmptySpace(rowIndex)"></div>
+
+              
+              <div v-else class="child" style="position:absolute; left: 100px;" >
+
+                <template v-for="(card,index) in row" :key="index"  >
+                  <div style="right:100px;">
+                     <div v-if="!card.isOpened" class="back"  @click="cardClick(card,'pick')"  >
+                      </div>
+      
+                      <div v-else class="front"  
+                      @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                        <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                        <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                        <br>
+                        <img v-if="isFinalCard(index,rowIndex)" class="bigImage" :src="getSVG(card.kind)" alt="">
+                      </div>
                   </div>
+                  <template> -->
+
+                  
   
-                  <div v-else class="front" :style="index==0? '':'margin-top:-43px'" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
-                    <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                    <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                    <br>
-                    <img v-if="isFinalCard(index,rowIndex)" class="bigImage" :src="getSVG(card.kind)" alt="">
-                  </div>
+                    <!-- <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-45px'" @click="cardClick(card,'pick')" >
+                    </div>
+    
+                    <div v-else class="front" :style="index==0? '':'margin-top:-43px'" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                      <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                      <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                      <br>
+                      <img v-if="isFinalCard(index,rowIndex)" class="bigImage" :src="getSVG(card.kind)" alt="">
+                    </div> -->
+
+                   
+
+                  <!-- </template> 
   
                 </template>
 
@@ -137,7 +156,42 @@
               </div>
             </div>
 
-          </template>
+          </template> -->
+
+
+
+          <!-- this for empty space to put it back -->
+          <!-- <template v-for="(row,rowIndex) in rows" :key="rowIndex" >
+            <div v-if="rowIndex < 7"  >
+              <div v-if="row.length == 0" class="empty child" @click="toEmptySpace(rowIndex)"></div>
+            </div>
+          </template> -->
+          <div v-if="hasGameStarted">
+            <template  v-for="(card,index) in deckDetail" :key="index" >
+
+
+              <div style="position: absolute; width: 43px; transition : all 0.8s ease 0s;" :style="{'top': card.y * 23  + 'px', 'left': card.x * 51  + 'px','z-index' : getZ(card)}" v-if="card.location == 'field'" :key="card">
+
+                  <div v-if="!card.isOpened" class="back" @click="cardClick(card,'pick')"   >
+    
+                  </div>
+    
+                  <div v-else class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                    <span :style="{'color':card.color}" >{{convertNum(card.num)}}</span>
+                    <!-- <span :style="{'color':card.color}" v-else>{{card.movingNow}}</span> -->
+                    <!-- <span :style="{'color':card.color}" style="font-size: 50%;">{{card.movingNow}}</span> -->
+                    <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                    <br>
+                    <!-- <img v-if="isFinalCard(card.y,card.x,card.movingNow)" class="bigImage" :src="getSVG(card.kind)" alt=""> -->
+                    <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                  </div>
+              </div>
+              
+
+            </template>
+          </div>
+
+
 
 
         
@@ -190,7 +244,11 @@ export default {
       currentCardId: undefined,
 
 
-      spectate: false
+      spectate: false,
+
+      audio: new Audio(require('@/assets/sounds/shuffle_sound.wav'))
+
+      // movingSpeed: 0.2,
     }
   },
 
@@ -228,6 +286,7 @@ export default {
         this.openMoreCard()
         return
       }
+      this.startCounting()
       this.hasGameStarted = true
       console.log('starting game')
       let count = 0
@@ -277,6 +336,9 @@ export default {
           count++
         }
       }
+      // var audio = new Audio('../public/audio/shuffle_sound.wav');
+      this.audio.play();
+
 
       this.test()
 
@@ -332,9 +394,9 @@ export default {
     },
 
     reset(){
-      if (!confirm("Would you like to reset the whole game?") ) return
+    if (!confirm("Would you like to reset the whole game?") ) return
 
-      this.isGameOver=  false,
+    this.isGameOver=  false,
     this.deckDetail =  undefined
     this.hasGameStarted= false
     this.sideCount=0
@@ -404,7 +466,9 @@ export default {
       }
     },
 
-    isFinalCard(index,row){
+    isFinalCard(index,row,movingNow){
+      // console.slog(index)
+      
       if(row == 'side'){
         let lastIndex = this.sideList.length
         
@@ -414,6 +478,10 @@ export default {
           return false
         }
       }
+      console.log(movingNow)
+
+      if(movingNow) return true
+      // what if it is multile 
       
       let lastIndex = this.rows[row].length
       if(index+1 == lastIndex){
@@ -553,15 +621,12 @@ export default {
     },
 
     cardClick(card){
-      // console.log(`card is : ${card.cardId}, ${card.location}`)
       if((this.spectate || !card.isOpened) && card.location == 'field' ){
-        // console.log(`card is: ${card}`)
         console.log(`specysyr card is: ${card.cardId}, x:${card.x}, y:${card.y}`)
         return 
       }
       
-      
-      
+    
       if(!this.hasSelectedCard){
         if(!card){
           return
@@ -612,9 +677,11 @@ export default {
 
       }else{
 
+
         
         const current = this.deckDetail.find(o => o.cardId === card.cardId)
         const previous = this.deckDetail.find(o => o.cardId === this.currentCardId)
+        // console.log(`card: ${previous.cardId}}`)
 
         if(current.location !== 'field') {
           this.hasSelectedCard = false
@@ -624,6 +691,7 @@ export default {
         
 
         // dropable judge ing
+        // console.log(this.rows[current.x])
         if(!this.rows[current.x].length ==0){
           if(previous.color == current.color){
             this.hasSelectedCard = false
@@ -674,6 +742,7 @@ export default {
 
             
           for (let i in list){
+            list.movingNow = true
             
             list[i].x = current.x
 
@@ -684,35 +753,165 @@ export default {
             }
           }
 
+          this.allUnselected()
+
+          setTimeout( () => {
+          this.stopEverything()
+
+        }, 500);
+
 
         }else{
 
+
+          // right here ------------------------------------------------------------
+          // changing x location
           previous.x = current.x
-          previous.isOpened = true
-          previous.location = 'field'
-          if(this.rows[current.x].length ==0){
-            previous.y = 0
-          }else{
-            if(current.y == undefined){
-              console.log('error---------------------------')
-            }
-            previous.y = current.y + 1
 
-          }
+          // const movingSpeed = 0.05
+          // const basedSpeed = 4
+
+          // previous.movingNow = true
+          // let og = previous.x
+          // let goal = current.x
+          // let diff =Math.abs(og- goal)
+          // console.log(`diff is: ${diff}`)
+
+          // previous.y = 10
+          
+          // count = 0 
+          // let limit = 500
+          // while(count < limit){
+          //   if (og < goal) {
+          //     setTimeout(
+          //     function() {
+          //       og = og + diff/limit
+          //       previous.x = og
+          //       console.log('x to right')
+          //     }, basedSpeed);
+          //   }else{
+          //     setTimeout(
+          //     function() {
+          //       og = og - diff/limit
+          //       previous.x = og
+          //       console.log('x to right')
+          //     }, basedSpeed);
+          //   }
+
+          //   count++
+          // }
+
+          // count should be 1000 in 1 second
+          // 1000 = 1 tile
+            // 1000 distance with 1000 moves=  1
+            // 2000 distance with 1000 moves=  2
+            // 3000 distance with 1000 moves=  3
+
+          // 2 then 
+          // 3 is 3000
+
+
+
+          // let xFlag = false
+
+          // finish the move just for 1 seecond 
+          
+
+          // moving x----------
+            // setInterval(function(){
+            //   if(!xFlag){
+            //     if(og+0.05 > goal && og- 0.05 < goal){
+            //       xFlag= true
+            //       console.log(xFlag)
+            //     }else if (og <= goal) {
+            //       og = og + movingSpeed
+            //       previous.x = og
+            //       console.log('x to right')
+            //     }else if (og >= goal) {
+            //       og = og - movingSpeed
+            //       previous.x = og
+            //       console.log('x to left')
+            //     }
+            //   }
+            // } ,basedSpeed);
+
+
+        
+          // moving y ----------------
+          // previous.isOpened = true  
+          // previous.location = 'field'
+
+
+          // // moving to empty one 
+          // if(this.rows[current.x].length ==0){
+          //   og = previous.y
+          //   goal = 0
+          //   if(og < goal){
+              
+          //     console.log('here 2')
+
+
+          //     setInterval(function(){
+          //       if (og == goal) {
+          //         og = og - movingSpeed
+          //         previous.y = og
+          //         console.log('moving it now')
+          //       }
+          //     } ,5);
+          //   }
+
+          //   // previous.y = 0
+          // }else{
+          //   // moving to existed row------------
+          //   og = previous.y
+          //   goal = current.y + 1
+
+          //   if(og < goal){
+              
+          //     console.log('moving to lower one')
+
+
+          //     setInterval(function(){
+          //       if (og < goal) {
+          //         og = og - movingSpeed
+          //         previous.y = og
+          //         console.log('moving it now')
+          //       }
+          //     } ,5);
+
+          //   }else if(og > goal){
+              
+          //     console.log('moving to up')
+
+
+          //     setInterval(function(){
+          //       if (og > goal) {
+          //         og = og + movingSpeed
+          //         previous.y = og
+          //         console.log('moving it now')
+          //       }
+          //     } ,5);
+            
+          //   }
+          //   // previous.y = current.y + 1
+
+          // }
+          previous.y = current.y + 1
         }
-        // console.log('is multiple move?: ' + this.isMultiple)
-        // console.log(`previous card is: ${previous.cardId}, x:${previous.x}, y:${previous.y}`)
 
-        // console.log(`current card is: ${current.cardId}, x:${current.x}, y:${current.y}`)
-
-        // let newCard = this.deckDetail.find(o => o.cardId === previous.cardId)
-        // newCard = previous
-        // console.log(newCard)
-
-        // dropping effect
+        
+        
         this.hasSelectedCard = false
+        previous.movingNow = true
+        
         this.allUnselected()
-        // set  all selected false
+        // setTimeout(() => this.basketAddSuccess = false, 2000);
+        setTimeout( () => {
+          this.stopEverything()
+
+        }, 500);
+
+        
     
       }
     },
@@ -720,6 +919,12 @@ export default {
     allUnselected(){
       for(let i in this.deckDetail){
         this.deckDetail[i].selected = false
+      }
+    },
+
+    stopEverything(){
+      for(let i in this.deckDetail){
+        this.deckDetail[i].movingNow = false
       }
     },
 
@@ -782,7 +987,21 @@ export default {
       this.hasSelectedCard = false
       this.allUnselected()
       // set  all selected false
-    }
+    },
+
+    getTop(){
+      // return `${100 + height * 5}px`
+      return `0px`
+    },
+    getLeft(left){
+      return `${100 + left * 5}px`
+    },
+
+    getZ(card){
+      if(!card.movingNow ) return card.y
+
+      return 100+ card.y
+    },
 
 
 
@@ -922,7 +1141,8 @@ export default {
     this.minute= 0
     this.hours=0 
 
-    this.startCounting()
+    // this.startCounting()
+
     let count =0
     let kind = 'club'
     let num = 1
@@ -930,7 +1150,7 @@ export default {
     this.deckDetail =[]
     while(count<52){
 
-      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 12, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`, selected:false})
+      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 12, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false})
 
       if(num ==13){
         num = 0
@@ -1002,6 +1222,51 @@ export default {
 
       }
     },
+
+    // deckDetail: {
+      
+    //   deep:true,
+    //   handler() {
+    //     for(let i in this.deckDetail){
+    //       if(this.deckDetail[i].location == 'field' && this.deckDetail[i].isOpened ){
+    //         let card = this.deckDetail[i]
+    //         console.log(`Card: ${card.cardId}}, x: `)
+    //       }
+    //     }
+    //     if(!this.hasGameStarted) return
+    //     let count = 0
+    //     let flag = true
+    //     let falseCount= 0
+    //     if(falseCount == 1) return
+    //     while(count < 7){
+    //       for(let i in this.rows[count]){
+    //         if(!this.rows[count][i].isOpened){
+    //           flag= false
+    //           falseCount++
+              
+    //         }
+            
+    //       }
+
+          
+    //       count++
+    //     }
+
+    //     if(!flag){
+    //       // console.log(`still going on with: ${falseCount} `)
+    //       return 
+    //     }
+    //     if(!this.isGameOver){
+    //       alert('You Won!');
+
+    //     }
+    //     console.log(' game is over')
+    //     this.isGameOver = true
+    //     this.spectate = true
+        
+
+    //   }
+    // },
   },
 }
 </script>
@@ -1036,79 +1301,73 @@ body {
 .detail{
   /* background-color: grey; */
   height:30px;
-  margin-top: 10px;
+  margin-top: 12px;
   text-align: start;
   margin-left: -15px;
 }
 
-hr{
-  height: 0.5px;
-  background-color: black;
-  border: none;
-  margin-top: 2px;
-  margin-bottom: 2px;
-}
 
 .button {
-  margin-top:-5px;
   position: absolute;
-  margin-left: 290px;
-  /* right: 0; */
+  margin-left: 312px;
+  margin-top: -3px;
 
-  background-color:  #008CBA; /* Green */
+  background-color:  darkgrey;
   border-width: 1px 1px 1px 1px;
   border-color: black;
   border-style: solid;
-  color: white;
+  color: black;
 
-  padding: 5px 10px;
+  padding: 3px 5px;
 
   text-align: center;
   text-decoration: none;
   /* display: inline-block; */
   font-size: 13px;
-  /* margin: 4px 2px; */
+
   cursor: pointer;
 }
 
 
 .finished-area{
   position:absolute;
-  /* background-color: blue; */
+  background-color: blue;
   top:45px;
-  opacity: 0.4;
+  /* opacity: 0.4; */
   width:200px;
-  height:130px;
+  height:80px;
   display: flex;
-  z-index: 100;
+  z-index: 200;
 }
 
 
 .top-section{
+  margin-top: 3.5px;
+  z-index: 1;
   /* background-color: blue; */
-  height:130px;
+  height:80px;
   display: flex;
 }
 
 .bottom-section{
-  /* background-color: yellow; */
-  height:450px;
-  display: flex;
+  z-index: 0;
+  top:135px;
+  /* width: 100%; */
+  background-color: blue;
+  /* opacity: 0.2; */
+  /* height:450px; */
+  position: absolute;
 }
 
-.undo-section{
-  /* background-color: yellow; */
-  /* height:500px; */
-  /* display: flex; */
-}
 
 .child{
-  margin-top: 10px;
+  /* margin-top: 10px; */
   
   width: 42.7px;
-  height: 60px;
+  height: 50px;
   margin-right:6px;
-  /* box-shadow: 0 0 1px 1px black; */
+  top: 0;
+  /* right:0; */
 }
 
 .empty{
@@ -1134,7 +1393,7 @@ hr{
   border-color: FloralWhite;
   border-style: solid;
   margin-top:-2px;
-  height:59px;
+  height:53px;
   top:0;
 
   
@@ -1160,10 +1419,10 @@ hr{
   
   border-style: solid;
   margin-top:-2px;
-  height:59px;
+  height:52px;
   top:0;
   font-size: 95%;
-  padding-top: 3px;
+  padding-top: 2px;
 }
 .card-selected{
   box-shadow: 0px 0px 20px gray;
@@ -1182,7 +1441,7 @@ hr{
 .smallImage{
   position: relative;
   /* left:10px; */
-  /* margin-top: 10px; */
+  margin-top: -13px;
   /* padding-top: 4px; */
   margin-left: -1px;
   width:14px;
@@ -1194,14 +1453,17 @@ hr{
   /* left:10px; */
   /* margin-top: 10px; */
   /* padding-top: 4px; */
-  margin-left: 3px;
-  width:30px;
+  margin-left: 0px;
+  width:26.5px;
   height:auto;
 }
 
 .front span{
+  font-size: 95%;
   margin-right: 4px;
-  /* margin-top: -20px; */
+  margin-top: -10px;
 }
+
+
 
 </style>
