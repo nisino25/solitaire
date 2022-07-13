@@ -161,16 +161,19 @@
 
 
           <!-- this for empty space to put it back -->
-          <!-- <template v-for="(row,rowIndex) in rows" :key="rowIndex" >
-            <div v-if="rowIndex < 7"  >
+          <template v-for="(row,rowIndex) in rows" :key="rowIndex" >
+
+            <div v-if="rowIndex < 7 "  :style="{'left': rowIndex * 51  + 'px'}" style="position: absolute; width: 40px; " >
               <div v-if="row.length == 0" class="empty child" @click="toEmptySpace(rowIndex)"></div>
             </div>
-          </template> -->
+
+          </template> 
+
           <div v-if="hasGameStarted">
             <template  v-for="(card,index) in deckDetail" :key="index" >
 
 
-              <div style="position: absolute; width: 43px; transition : all 0.8s ease 0s;" :style="{'top': card.y * 23  + 'px', 'left': card.x * 51  + 'px','z-index' : getZ(card)}" v-if="card.location == 'field'" :key="card">
+              <div style="position: absolute; width: 43px; transition : all 0.6s ease 0s;" :style="{'top': card.y * 23  + 'px', 'left': card.x * 51  + 'px','z-index' : getZ(card)}" v-if="card.location == 'field'" :key="card">
 
                   <div v-if="!card.isOpened" class="back" @click="cardClick(card,'pick')"   >
     
@@ -246,13 +249,17 @@ export default {
 
       spectate: false,
 
-      audio: new Audio(require('@/assets/sounds/shuffle_sound.wav'))
+      shuffle_audio: new Audio(require('@/assets/sounds/shuffle_sound.wav')),
+      move_audio: new Audio(require('@/assets/sounds/move_card.wav')),
+      deal_auido: new Audio(require('@/assets/sounds/deal3.wav')),
+      // My Movie 1.m4a
 
       // movingSpeed: 0.2,
     }
   },
 
   methods:{
+
     startCounting(){
       
       if(this.hours < 2) {
@@ -336,8 +343,8 @@ export default {
           count++
         }
       }
-      // var audio = new Audio('../public/audio/shuffle_sound.wav');
-      this.audio.play();
+      // var shuffle_audio = new shuffle_audio('../public/shuffle_audio/shuffle_sound.wav');
+      this.shuffle_audio.play();
 
 
       this.test()
@@ -361,6 +368,8 @@ export default {
       }
 
       if(this.isMixedOver){
+        this.deal_auido.pause()
+        this.deal_auido.play()
         for(let i in this.shuffledIndex){
           let theIndex = this.shuffledIndex[i]
           if(this.deckDetail[theIndex].location == 'deck'){
@@ -388,6 +397,8 @@ export default {
           this.moveCount++
         }
       }
+      this.deal_auido.pause()
+      this.deal_auido.play()
     },
 
     test(){
@@ -903,6 +914,9 @@ export default {
         
         this.hasSelectedCard = false
         previous.movingNow = true
+
+        this.deal_auido.pause()
+        this.deal_auido.play()
         
         this.allUnselected()
         // setTimeout(() => this.basketAddSuccess = false, 2000);
@@ -1331,7 +1345,7 @@ body {
 
 .finished-area{
   position:absolute;
-  background-color: blue;
+  /* background-color: blue; */
   top:45px;
   /* opacity: 0.4; */
   width:200px;
@@ -1353,7 +1367,7 @@ body {
   z-index: 0;
   top:135px;
   /* width: 100%; */
-  background-color: blue;
+  /* background-color: blue; */
   /* opacity: 0.2; */
   /* height:450px; */
   position: absolute;
