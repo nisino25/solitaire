@@ -8,6 +8,7 @@
 
     </head>
     <body>
+      <audio id="myAudio" src="assets/sounds/deal.wav"></audio>
       <div class="wrapper">
 
         <div class="detail">
@@ -30,7 +31,7 @@
 
 
         
-          <div class="child" :class="heartList.length==0? 'empty' : ''">
+          <div class="child holder" :class="heartList.length==0? 'empty' : ''">
             <template v-for="(card,index) in heartList" :key="index" >
               <div v-if="index == heartList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
@@ -41,7 +42,7 @@
             </template>
           </div>
 
-          <div class="child" :class="spadeList.length==0? 'empty' : ''">
+          <div class="child holder" :class="spadeList.length==0? 'empty' : ''">
             <template v-for="(card,index) in spadeList" :key="index">
               <div v-if="index == spadeList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
@@ -52,7 +53,7 @@
             </template>
           </div>
 
-          <div class="child" :class="diamondList.length==0? 'empty' : ''" >
+          <div class="child holder" :class="diamondList.length==0? 'empty' : ''" >
             <template v-for="(card,index) in diamondList" :key="index">
               <div v-if="index == diamondList.length-1" class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
@@ -63,7 +64,7 @@
             </template>
           </div>
 
-          <div class="child" style="margin-right: 33px" :class="clubList.length==0? 'empty' : ''" >
+          <div class="child holder" style="margin-right: 33px" :class="clubList.length==0? 'empty' : ''" >
             <template v-for="(card,index) in clubList" :key="index">
               <div v-if="index == clubList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
                 <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
@@ -75,28 +76,21 @@
           </div>
 
 
+          <!-- ---- pile --------------->
+          <div>
+            
+            <!-- there is always case like that -->
+            <div style="position: absolute; width: 46px; z-index: 0; " >
+              <div  class="empty child" ></div>
+            </div>
+            
 
-          <div class="child" :class="sideList.length==0? 'empty' : ''" style="margin-right: 30px">
-            <template v-for="(card,index) in sideList" :key="index">
-              <div v-if="index > sideList.length-4 && sideList.length == index+1" class="front"  draggable @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" :style="judgeForSide(index)? '':'margin-top:-40px'">
-                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="" v-if="isFinalCard(index,'side')">
-              </div>
+            
 
-              <div v-if="index > sideList.length-4 && sideList.length !== index+1" class="front" :class="[card.selected ? 'card-selected' : 'card-not-selected']" :style="judgeForSide(index)? '':'margin-top:-40px'">
-                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                <!-- <span :style="{'color':card.color}">{{index}}</span> -->
-                <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="" v-if="isFinalCard(index,'side')">
-              </div>
-              
-            </template>
-          </div> 
+          </div>
 
-          <div class="child " :class="deckNum == 0? 'empty' : ''" style="margin-right: -6px" @click="startGame()">
+
+          <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 60px" @click="startGame()">
 
             <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
             <div v-if="deckNum ==0 && hasGameStarted"> <img style="margin-top:20px;" src="../public/iconmonstr-refresh-1.svg" ></div>
@@ -112,82 +106,49 @@
 
         <div class="bottom-section" >
 
-          <!-- <template v-for="(row,rowIndex) in rows" :key="rowIndex" >
-            <div v-if="rowIndex < 7"  >
-              <div v-if="row.length == 0" class="empty child" @click="toEmptySpace(rowIndex)"></div>
-
-              
-              <div v-else class="child" style="position:absolute; left: 100px;" >
-
-                <template v-for="(card,index) in row" :key="index"  >
-                  <div style="right:100px;">
-                     <div v-if="!card.isOpened" class="back"  @click="cardClick(card,'pick')"  >
-                      </div>
-      
-                      <div v-else class="front"  
-                      @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
-                        <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                        <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                        <br>
-                        <img v-if="isFinalCard(index,rowIndex)" class="bigImage" :src="getSVG(card.kind)" alt="">
-                      </div>
-                  </div>
-                  <template> -->
-
-                  
-  
-                    <!-- <div v-if="!card.isOpened" class="back" :style="index==0? '':'margin-top:-45px'" @click="cardClick(card,'pick')" >
-                    </div>
-    
-                    <div v-else class="front" :style="index==0? '':'margin-top:-43px'" @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
-                      <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                      <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                      <br>
-                      <img v-if="isFinalCard(index,rowIndex)" class="bigImage" :src="getSVG(card.kind)" alt="">
-                    </div> -->
-
-                   
-
-                  <!-- </template> 
-  
-                </template>
-
-                
-              </div>
-            </div>
-
-          </template> -->
-
-
 
           <!-- this for empty space to put it back -->
           <template v-for="(row,rowIndex) in rows" :key="rowIndex" >
 
-            <div v-if="rowIndex < 7 "  :style="{'left': rowIndex * 51  + 'px'}" style="position: absolute; width: 40px; " >
-              <div v-if="row.length == 0" class="empty child" @click="toEmptySpace(rowIndex)"></div>
+            <div v-if="rowIndex < 7 "  :style="{'left': rowIndex * 51  + 'px'}" style="position: absolute; width: 46px; z-index: 0; top:20px " >
+              <div  class="empty child" @click="toEmptySpace(rowIndex)"></div>
             </div>
 
           </template> 
 
           <div v-if="hasGameStarted">
-            <template  v-for="(card,index) in deckDetail" :key="index" >
+            <template  v-for="(card) in deckDetail" :key="card" >
 
 
-              <div style="position: absolute; width: 43px; transition : all 0.6s ease 0s;" :style="{'top': card.y * 23  + 'px', 'left': card.x * 51  + 'px','z-index' : getZ(card)}" v-if="card.location == 'field'" :key="card">
+              <div style="position: absolute; width: 43px; transition : all 0.6s ease 0s;" :style="getStyle(card)" v-if="card" >
 
-                  <div v-if="!card.isOpened" class="back" @click="cardClick(card,'pick')"   >
-    
-                  </div>
-    
-                  <div v-else class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
-                    <span :style="{'color':card.color}" >{{convertNum(card.num)}}</span>
-                    <!-- <span :style="{'color':card.color}" v-else>{{card.movingNow}}</span> -->
-                    <!-- <span :style="{'color':card.color}" style="font-size: 50%;">{{card.movingNow}}</span> -->
+                  <!-- ------------------- -->
+
+                  <!-- <div  v-if="card.location == 'side'" class="front" :class="[card.selected ? 'card-selected' : 'card-not-selected']"  @click="cardClick(card,'pick')">
+                    <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                     <img class="smallImage" :src="getSVG(card.kind)" alt="">
                     <br>
-                    <!-- <img v-if="isFinalCard(card.y,card.x,card.movingNow)" class="bigImage" :src="getSVG(card.kind)" alt=""> -->
-                    <img class="bigImage" :src="getSVG(card.kind)" alt="">
+                    <img class="bigImage" :src="getSVG(card.kind)" alt="" >
+                  </div> -->
+
+
+
+                  
+                  <!-- ----------- back face card  ------- -->
+                  <div v-if="!card.isOpened && card.location == 'field'" class="back" @click="cardClick(card,'pick')"   >
                   </div>
+
+
+
+                  <!-- ----------- front face card  ------- -->
+                  <div v-if=" card.isOpened " class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                    <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
+                    <!-- <span>heys</span> -->
+                    <img class="smallImage" :src="getSVG(card.kind)" alt="">
+                    <br>
+                    <img  class="bigImage" :src="getSVG(card.kind)" alt="">
+                  </div>
+
               </div>
               
 
@@ -218,6 +179,7 @@ import heartImage from "../public/heart-svgrepo-com.svg"
 import clubImage from "../public/clover-black-shape-svgrepo-com.svg"
 import spadeImage from "../public/spades-svgrepo-com.svg"
 import diamondImage from "../public/diamond-svgrepo-com.svg"
+// import { time } from "console"
 
 // import HelloWorld from './components/HelloWorld.vue'
 
@@ -251,7 +213,7 @@ export default {
 
       shuffle_audio: new Audio(require('@/assets/sounds/shuffle_sound.wav')),
       move_audio: new Audio(require('@/assets/sounds/move_card.wav')),
-      deal_auido: new Audio(require('@/assets/sounds/deal3.wav')),
+      deal_auido: new Audio(require('@/assets/sounds/deal.wav')),
       // My Movie 1.m4a
 
       // movingSpeed: 0.2,
@@ -357,6 +319,8 @@ export default {
 
       // reset cards to decks
       if(this.deckNum ==0){
+        this.stopAllTheSound()
+        this.shuffle_audio.play()
         this.isMixedOver = true
         for (let i in this.deckDetail){
           if(this.deckDetail[i].location == 'side'){
@@ -368,7 +332,7 @@ export default {
       }
 
       if(this.isMixedOver){
-        this.deal_auido.pause()
+        // this.deal_auido.pause()
         this.deal_auido.play()
         for(let i in this.shuffledIndex){
           let theIndex = this.shuffledIndex[i]
@@ -391,14 +355,19 @@ export default {
 
           this.deckDetail[randomNum].location = 'side'
           this.deckDetail[randomNum].sideCount= this.sideCount
-          this.deckDetail[randomNum].x = 11
+          // this.deckDetail[randomNum].x = 7
+          this.deckDetail[randomNum].isOpened = true
           this.sideCount++
           flag =true
           this.moveCount++
+          // console.log(this.deckDetail[randomNum].cardId)
         }
       }
-      this.deal_auido.pause()
+      // let myAudio = document.getElementById('myAudio');
+      // myAudio.play();
+      
       this.deal_auido.play()
+      
     },
 
     test(){
@@ -477,10 +446,9 @@ export default {
       }
     },
 
-    isFinalCard(index,row,movingNow){
-      // console.slog(index)
-      
-      if(row == 'side'){
+    isFinalCard(index,card){
+      // console.log(card.cardId)
+      if(card.location == 'side'){
         let lastIndex = this.sideList.length
         
         if(index+1 == lastIndex){
@@ -489,13 +457,14 @@ export default {
           return false
         }
       }
-      console.log(movingNow)
 
-      if(movingNow) return true
+      // --------------------------------------------
+      // console.slog(index)
+
       // what if it is multile 
       
-      let lastIndex = this.rows[row].length
-      if(index+1 == lastIndex){
+      let lastIndex = this.rows[card.x].length
+      if(card.y+1 == lastIndex){
         return true
       }else{
         return false
@@ -687,6 +656,7 @@ export default {
         
 
       }else{
+        
 
 
         
@@ -695,6 +665,7 @@ export default {
         // console.log(`card: ${previous.cardId}}`)
 
         if(current.location !== 'field') {
+          
           this.hasSelectedCard = false
           this.allUnselected()
           return
@@ -773,157 +744,36 @@ export default {
 
 
         }else{
+          // console.log('this?')
 
 
           // right here ------------------------------------------------------------
           // changing x location
           previous.x = current.x
-
-          // const movingSpeed = 0.05
-          // const basedSpeed = 4
-
-          // previous.movingNow = true
-          // let og = previous.x
-          // let goal = current.x
-          // let diff =Math.abs(og- goal)
-          // console.log(`diff is: ${diff}`)
-
-          // previous.y = 10
-          
-          // count = 0 
-          // let limit = 500
-          // while(count < limit){
-          //   if (og < goal) {
-          //     setTimeout(
-          //     function() {
-          //       og = og + diff/limit
-          //       previous.x = og
-          //       console.log('x to right')
-          //     }, basedSpeed);
-          //   }else{
-          //     setTimeout(
-          //     function() {
-          //       og = og - diff/limit
-          //       previous.x = og
-          //       console.log('x to right')
-          //     }, basedSpeed);
-          //   }
-
-          //   count++
-          // }
-
-          // count should be 1000 in 1 second
-          // 1000 = 1 tile
-            // 1000 distance with 1000 moves=  1
-            // 2000 distance with 1000 moves=  2
-            // 3000 distance with 1000 moves=  3
-
-          // 2 then 
-          // 3 is 3000
-
-
-
-          // let xFlag = false
-
-          // finish the move just for 1 seecond 
-          
-
-          // moving x----------
-            // setInterval(function(){
-            //   if(!xFlag){
-            //     if(og+0.05 > goal && og- 0.05 < goal){
-            //       xFlag= true
-            //       console.log(xFlag)
-            //     }else if (og <= goal) {
-            //       og = og + movingSpeed
-            //       previous.x = og
-            //       console.log('x to right')
-            //     }else if (og >= goal) {
-            //       og = og - movingSpeed
-            //       previous.x = og
-            //       console.log('x to left')
-            //     }
-            //   }
-            // } ,basedSpeed);
-
-
-        
-          // moving y ----------------
-          // previous.isOpened = true  
-          // previous.location = 'field'
-
-
-          // // moving to empty one 
-          // if(this.rows[current.x].length ==0){
-          //   og = previous.y
-          //   goal = 0
-          //   if(og < goal){
-              
-          //     console.log('here 2')
-
-
-          //     setInterval(function(){
-          //       if (og == goal) {
-          //         og = og - movingSpeed
-          //         previous.y = og
-          //         console.log('moving it now')
-          //       }
-          //     } ,5);
-          //   }
-
-          //   // previous.y = 0
-          // }else{
-          //   // moving to existed row------------
-          //   og = previous.y
-          //   goal = current.y + 1
-
-          //   if(og < goal){
-              
-          //     console.log('moving to lower one')
-
-
-          //     setInterval(function(){
-          //       if (og < goal) {
-          //         og = og - movingSpeed
-          //         previous.y = og
-          //         console.log('moving it now')
-          //       }
-          //     } ,5);
-
-          //   }else if(og > goal){
-              
-          //     console.log('moving to up')
-
-
-          //     setInterval(function(){
-          //       if (og > goal) {
-          //         og = og + movingSpeed
-          //         previous.y = og
-          //         console.log('moving it now')
-          //       }
-          //     } ,5);
-            
-          //   }
-          //   // previous.y = current.y + 1
-
-          // }
           previous.y = current.y + 1
+          // console.log(`previous: ${card.cardId}, x: ${previous.x}, y: ${previous.y}`)
         }
 
         
-        
+        // console.log('this?')
         this.hasSelectedCard = false
         previous.movingNow = true
 
-        this.deal_auido.pause()
+        // this.deal_auido.pause()
         this.deal_auido.play()
         
         this.allUnselected()
         // setTimeout(() => this.basketAddSuccess = false, 2000);
         setTimeout( () => {
           this.stopEverything()
-
         }, 500);
+
+
+        previous.location = 'field'
+
+        // console.log(`previous: ${card.cardId}, x: ${previous.x}, y: ${previous.y}`)
+        // console.log(`location : ${previous.location}`)
+        
 
         
     
@@ -1012,9 +862,113 @@ export default {
     },
 
     getZ(card){
-      if(!card.movingNow ) return card.y
+      if(card.location == 'side') return 1000
+      if(!card.movingNow ) return  card.y
 
-      return 100+ card.y
+      return 100 - card.y
+    },
+
+    getHeight(index){
+      if(this.sideList.length ==1){
+        return -91 + 'px'
+      }
+
+
+      if(this.sideList.length ==2){
+        if(index == 0){
+          return -91 + 'px'
+        }else if(index == 1){
+          return 69 -136 + 'px'
+        }
+      }
+
+
+      // let position =  this.sideList.length  - index
+      // console.log(position)
+      // position = position/ index
+      if(index == 0){
+        return -91 + 'px'
+      }else if(index == 1){
+        return -67 + 'px'
+      }else if(index == 2){
+        return -45 + 'px'
+      }
+      
+
+
+      // return 100+  position * 30+ 'px'
+    },
+
+    stopAllTheSound(){
+      // this.shuffle_audio.pause()
+      // this.move_audio.pause()
+      // this.deal_auido.pause()
+    },
+
+    getStyle(card){
+      if(card.location == 'field'){
+        // console.log(`field; ${card.cardId}`)
+        return`left: ${card.x * 51}px; top: ${card.y * 23+ 20}px; z-index: ${this.getZ(card)}`       
+      }else if (card.location == 'side'){
+        //  this.$forceUpdate()
+        if(this.sideCheck(card) == 'no') return `opacity:0;right: -270px;opacity: 0;`
+
+        let index = this.sideCheck(card)
+        // console.log(index)
+
+
+
+        // return `top: ${this.getHeight(card.index)}; right: 100px; `
+        return `top: ${this.getHeight(index)}; right: -270px; z-index: ${100 +index} `
+        // :style="{'top': getHeight(index), 'z-index' : index+ 100}" @click="cardClick(card,'pick')"
+      }else{
+        return `top: 0px; right:-270px; `
+      }
+      // {'top': card.y * 23  + 'px', 'left': card.x * 51  + 'px','z-index' : getZ(card)}
+      // return `top: ${card.y * 23}  + px}; left: ${card.x * 51}  + px; z-index: ${this.getZ(card)}`
+    },
+
+    sideCheck(card){
+      if(this.sideList.length == 1){
+        if(this.sideList[0].cardId == card.cardId){
+          
+          return 0
+        }else {
+          // console.log(`og: ${card.cardId}, answe: ${this.sideList[0].cardId}`)
+          return 'no'
+        }
+        
+      }else if(this.sideList.length == 2){
+        if(this.sideList[0].cardId == card.cardId) {
+          return 0
+        }else if(this.sideList[1].cardId == card.cardId) {
+          return 1
+        }return 'no'
+
+      }else if(this.sideList.length > 2  ){
+        // console.log('here?s')
+
+        let theIndex = this.sideList.length -1
+
+        let first = this.sideList[theIndex-2]
+        let second = this.sideList[theIndex-1]
+        let third = this.sideList[theIndex]
+        // console.log(first.cardId)
+        // console.log(second.cardId)
+        // console.log(third.cardId)
+        if(first.cardId == card.cardId){
+          
+          return 0
+        } else if(second.cardId == card.cardId){
+          return 1
+        } else if(third.cardId == card.cardId){
+          return 2
+        }else{
+          return 'no'
+        }
+        
+        
+      }
     },
 
 
@@ -1136,6 +1090,33 @@ export default {
         }
       }
       return count
+    },
+
+    stylesForEach: function(){
+      let list = []
+      for(let i in this.deckDetail){
+        let card =this.deckDetail[i]
+        if(card.location == 'field'){
+          // console.log(`field; ${card.cardId}`)
+          list.push(`left: ${card.x * 51}px; top: ${card.y * 23}px; z-index: ${this.getZ(card)}`)       
+        }else if (card.location == 'side'){
+          // list.push(`top: -136px; left: 100px; `) 
+          // return
+          console.log(`side; ${card.cardId}`)
+          if(this.sideCheck(card) == 'no'){
+            list.push(`top: -200px; left: 100px; `)
+
+          }
+
+          let index = this.sideCheck(card)
+
+
+        list.push(`top: ${this.getHeight(index)}; right: -272px; z-index: ${index+ 100} `)
+        }else if(card.location == 'deck'){
+          list.push(`top: -130px; left: 200px; `) 
+        }
+      }
+      return list
     }
   },
 
@@ -1164,7 +1145,7 @@ export default {
     this.deckDetail =[]
     while(count<52){
 
-      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 12, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false})
+      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 5.5, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false,deckIndex: count})
 
       if(num ==13){
         num = 0
@@ -1374,10 +1355,20 @@ body {
 }
 
 
-.child{
+.holder{
   /* margin-top: 10px; */
   
   width: 42.7px;
+  height: 50px;
+  margin-right:6px;
+  top: 0;
+  /* right:0; */
+}
+
+.child{
+  /* margin-top: 10px; */
+  
+  /* width: 42.7px; */
   height: 50px;
   margin-right:6px;
   top: 0;
@@ -1477,6 +1468,22 @@ body {
   margin-right: 4px;
   margin-top: -10px;
 }
+
+/* we will explain what these classes do next! */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
 
 
 
