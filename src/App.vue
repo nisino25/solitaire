@@ -8,7 +8,6 @@
 
     </head>
     <body>
-      <audio id="myAudio" src="assets/sounds/deal.wav"></audio>
       <div class="wrapper">
 
         <div class="detail">
@@ -26,81 +25,35 @@
           </div>
         </div>
 
+        <div class="finished-area" v-if="hasSelectedCard" @click="finishDrop()"></div>
         <div class="top-section">
-          <div class="finished-area" v-if="hasSelectedCard" @click="finishDrop()"></div>
 
-
-        
-          <div class="child holder" :class="heartList.length==0? 'empty' : ''">
-            <template v-for="(card,index) in heartList" :key="index" >
-              <div v-if="index == heartList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
-                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
-              </div>
-            </template>
-          </div>
-
-          <div class="child holder" :class="spadeList.length==0? 'empty' : ''">
-            <template v-for="(card,index) in spadeList" :key="index">
-              <div v-if="index == spadeList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
-                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
-              </div>
-            </template>
-          </div>
-
-          <div class="child holder" :class="diamondList.length==0? 'empty' : ''" >
-            <template v-for="(card,index) in diamondList" :key="index">
-              <div v-if="index == diamondList.length-1" class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
-                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
-              </div>
-            </template>
-          </div>
-
-          <div class="child holder" style="margin-right: 33px" :class="clubList.length==0? 'empty' : ''" >
-            <template v-for="(card,index) in clubList" :key="index">
-              <div v-if="index == clubList.length-1" class="front"   @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']">
-                <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                <br>
-                <img class="bigImage" :src="getSVG(card.kind)" alt="">
-              </div>
-            </template>
-          </div>
-
+          <div><div class="empty child"></div></div>
+          <div><div class="empty child"></div></div>
+          <div><div class="empty child"></div></div>
+          <div><div class="empty child"></div></div>
 
           <!-- ---- pile --------------->
-          <div>
-            
-            <!-- there is always case like that -->
-            <div style="position: absolute; width: 46px; z-index: 0; " >
+          <div style="margin-left: 25px;">
+            <div style="position: absolute; width: 43px; z-index: 0; " >
               <div  class="empty child" ></div>
             </div>
-            
-
-            
-
           </div>
 
+          <!-- ---- deck --------------->
 
-          <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 60px" @click="startGame()">
+
+          <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 26px" @click="startGame()">
 
             <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
-            <div v-if="deckNum ==0 && hasGameStarted"> <img style="margin-top:20px;" src="../public/iconmonstr-refresh-1.svg" ></div>
+            <div v-if="deckNum ==0 && hasGameStarted"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
             
             <div v-if="!hasGameStarted" class="start"><span>START</span> </div>
             
             
 
           </div>
-          <span style="margin-top: 62px; margin-left:-25px; color:FloralWhite; font-weight:bold;">{{deckNum}}</span>
+          <span style="margin-top: 62px; margin-left:-38px; color:FloralWhite; font-weight:bold;">{{deckNum}}</span>
 
         </div>
 
@@ -911,7 +864,7 @@ export default {
         return`left: ${card.x * 51}px; top: ${card.y * 23+ 20}px; z-index: ${this.getZ(card)}`       
       }else if (card.location == 'side'){
         //  this.$forceUpdate()
-        if(this.sideCheck(card) == 'no') return `opacity:0;right: -270px;opacity: 0;`
+        if(this.sideCheck(card) == 'no') return `opacity:0;right: -270px; top:-100px`
 
         let index = this.sideCheck(card)
         // console.log(index)
@@ -921,8 +874,11 @@ export default {
         // return `top: ${this.getHeight(card.index)}; right: 100px; `
         return `top: ${this.getHeight(index)}; right: -270px; z-index: ${100 +index} `
         // :style="{'top': getHeight(index), 'z-index' : index+ 100}" @click="cardClick(card,'pick')"
-      }else{
-        return `top: 0px; right:-270px; `
+      }else if(card.location == 'deck'){
+        return `top: -100px; right:-270px; opacity: 0 `
+
+      }else if(card.location == 'finished'){
+        return this.getCordninate(card)
       }
       // {'top': card.y * 23  + 'px', 'left': card.x * 51  + 'px','z-index' : getZ(card)}
       // return `top: ${card.y * 23}  + px}; left: ${card.x * 51}  + px; z-index: ${this.getZ(card)}`
@@ -969,6 +925,31 @@ export default {
         
         
       }
+    },
+
+    getCordninate(card){
+      let leftPx
+
+      switch(card.kind){
+        case 'heart':
+          leftPx = '0px'
+          break;
+
+        case 'club':
+            leftPx = '50px'
+            break;
+
+        case 'diamond':
+          leftPx = '100px'
+          break;
+
+        case 'spade':
+          leftPx = '150px'
+          break;
+      }
+      let style = `top: -90px; left:${leftPx}; z-index: ${card.num}`
+      // console.log(style)
+      return style;
     },
 
 
@@ -1291,6 +1272,12 @@ body {
   user-select: none;
 
 }
+.wrapper{
+  width: 375px;
+  margin: 0 auto;
+  /* background-color: #f0e130; */
+
+}
 
 
 .detail{
@@ -1330,18 +1317,24 @@ body {
   top:45px;
   /* opacity: 0.4; */
   width:200px;
-  height:80px;
-  display: flex;
+  height:100px;
   z-index: 200;
 }
 
 
 .top-section{
   margin-top: 3.5px;
-  z-index: 1;
+  z-index: 0;
   /* background-color: blue; */
   height:80px;
+  position: absolute;
   display: flex;
+}
+
+.top-section div{
+  width: 38px;
+  z-index: 0;
+  margin-right:13px;
 }
 
 .bottom-section{
@@ -1469,7 +1462,9 @@ body {
   margin-top: -10px;
 }
 
-/* we will explain what these classes do next! */
+
+
+/* animation ------------- */
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }
