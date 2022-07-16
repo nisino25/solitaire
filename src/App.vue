@@ -290,7 +290,6 @@ export default {
       }
 
       if(this.isMixedOver){
-        console.log('he')
         // this.deal_auido.pause()
         this.deal_auido.play()
         for(let i in this.shuffledIndex){
@@ -299,9 +298,11 @@ export default {
             this.deckDetail[theIndex].location = 'side'
             this.deckDetail[theIndex].isOpened = true
             this.deckDetail[theIndex].sideCount= this.sideCount
+            
             this.deckDetail[theIndex].x = 11
             this.sideCount++
             this.moveCount++
+            
             return
           }
         }
@@ -318,6 +319,7 @@ export default {
           // this.dekDetail[randomNum].x = 4.5
           this.deckDetail[randomNum].isOpened = true
           this.sideCount++
+          this.deckDetail[randomNum].zCount= this.moveCount
           flag =true
           this.moveCount++
           // console.log(this.deckDetail[randomNum].cardId)
@@ -561,10 +563,14 @@ export default {
       }
     },
 
+
+
     cardClick(card){
       if(card.location == 'deck' && !this.hasGameStarted) return this.startGame()
       if(card.location == 'deck' && this.hasGameStarted) return this.openMoreCard()
 
+      console.log('chu')
+      this.spectate = false
       if((this.spectate || !card.isOpened) && card.location == 'field' ){
         console.log(`specysyr card is: ${card.cardId}, x:${card.x}, y:${card.y}`)
         return 
@@ -744,6 +750,7 @@ export default {
       }
     },
 
+
     allUnselected(){
       for(let i in this.deckDetail){
         this.deckDetail[i].selected = false
@@ -877,7 +884,7 @@ export default {
         if(this.sideCheck(card) == 'no') return `opacity:0;right: -270px; top:-80px;`
 
         let index = this.sideCheck(card)
-        return `top: ${this.getHeight(index)}; left: 227px; z-index: ${100 +index} 
+        return `top: ${this.getHeight(index)}; left: 227px; z-index: ${card.zCount}  
         `
       }else if(card.location == 'deck'){
         return `top: -95px; left:300px; opacity: 0; z-index: 0;  `
@@ -1131,7 +1138,7 @@ export default {
     this.deckDetail =[]
     while(count<52){
 
-      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 5.5, y: undefined, isOpened: true,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false,deckIndex: count})
+      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 5.5, y: undefined, isOpened: true,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false,deckIndex: count,zCount: 0})
 
       if(num ==13){
         num = 0
