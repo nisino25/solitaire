@@ -12,7 +12,9 @@
 
         <div class="detail">
           <div>
-            <div class="button" @click="reset()">RESET</div>
+            <!-- <div v-if="!hasGameStarted" class="button" @click="startGame()" style="background-color:  white;">START</div> -->
+            <div v-if="hasGameStarted" class="button" @click="reset()" style="background-color:  darkgrey;">RESET</div>
+            
             <!-- <br><br><br>
             <div class="button" @click="spectate = !spectate">spactate</div> -->
           </div>
@@ -21,11 +23,12 @@
             <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}:</span>
             &nbsp;
             <span style="margin-top:50px">Move Count: {{moveCount}}</span>
-            <!-- <span @click="spectate = !spectate" style="background-color: aqua; ">:{{hasSelectedCard}}:</span> -->
+            <!-- <span @click="spectate = !spectate" style="background-color: aqua; ">:{{hasSelectedCard}}:</span> --> 
           </div>
         </div>
 
         <div class="finished-area" v-if="hasSelectedCard" @click="finishDrop()"></div>
+
         <div class="top-section">
 
           <div><div class="empty child"></div></div>
@@ -43,17 +46,15 @@
           <!-- ---- deck --------------->
 
 
-          <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 26px" @click="startGame()">
+          <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 26px;  z-index: 1000" @click="startGame()" >
 
             <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
             <div v-if="deckNum ==0 && hasGameStarted"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
             
             <div v-if="!hasGameStarted" class="start"><span>START</span> </div>
             
-            
-
           </div>
-          <span style="margin-top: 62px; margin-left:-38px; color:FloralWhite; font-weight:bold;">{{deckNum}}</span>
+          <span style="margin-top: 62px; color:FloralWhite; font-weight:bold; text-align: middle;" :style="[deckNum >= 10 ? 'margin-left:-39px ' : 'margin-left:-35px']">{{deckNum}}</span>
 
         </div>
 
@@ -69,20 +70,11 @@
 
           </template> 
 
-          <div v-if="hasGameStarted">
+          <div>
             <template  v-for="(card) in deckDetail" :key="card" >
 
 
               <div style="position: absolute; width: 43px; transition : all 0.6s ease 0s;" :style="getStyle(card)" v-if="card" >
-
-                  <!-- ------------------- -->
-
-                  <!-- <div  v-if="card.location == 'side'" class="front" :class="[card.selected ? 'card-selected' : 'card-not-selected']"  @click="cardClick(card,'pick')">
-                    <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
-                    <img class="smallImage" :src="getSVG(card.kind)" alt="">
-                    <br>
-                    <img class="bigImage" :src="getSVG(card.kind)" alt="" >
-                  </div> -->
 
 
 
@@ -94,7 +86,7 @@
 
 
                   <!-- ----------- front face card  ------- -->
-                  <div v-if=" card.isOpened " class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
+                  <div v-if=" card.isOpened  " class="front"  @click="cardClick(card,'pick')"  :class="[card.selected ? 'card-selected' : 'card-not-selected']" >
                     <span :style="{'color':card.color}">{{convertNum(card.num)}}</span>
                     <!-- <span>heys</span> -->
                     <img class="smallImage" :src="getSVG(card.kind)" alt="">
@@ -203,7 +195,14 @@ export default {
         }, 1000)
       }
     },
-    startGame(){
+    sleep(ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+    },
+    async startGame(){
+      
+
       if(this.hasGameStarted){
         this.openMoreCard()
         return
@@ -218,10 +217,12 @@ export default {
       while(count<28){
         let randomNum =Math.floor(Math.random() * 51);
         if(this.deckDetail[randomNum].location == 'deck'){
+          await this.sleep(25);
           this.deckDetail[randomNum].location = 'field'
           this.deckDetail[randomNum].x = horizontal
           this.deckDetail[randomNum].y = vertical
           vertical++
+          // this.deckDetail[randomNum].isOpened = false
 
           if(horizontal== 0 &&  vertical ==1){
             this.deckDetail[randomNum].isOpened = true
@@ -235,6 +236,7 @@ export default {
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
+            this.shuffle_audio.play();
           }else if(horizontal == 3 && vertical ==4){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
@@ -251,6 +253,8 @@ export default {
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
+          }else{
+            this.deckDetail[randomNum].isOpened = false
           }
 
 
@@ -260,6 +264,7 @@ export default {
       }
       // var shuffle_audio = new shuffle_audio('../public/shuffle_audio/shuffle_sound.wav');
       this.shuffle_audio.play();
+      // console.log(this.deckDetail)
 
 
       this.test()
@@ -285,12 +290,14 @@ export default {
       }
 
       if(this.isMixedOver){
+        console.log('he')
         // this.deal_auido.pause()
         this.deal_auido.play()
         for(let i in this.shuffledIndex){
           let theIndex = this.shuffledIndex[i]
           if(this.deckDetail[theIndex].location == 'deck'){
             this.deckDetail[theIndex].location = 'side'
+            this.deckDetail[theIndex].isOpened = true
             this.deckDetail[theIndex].sideCount= this.sideCount
             this.deckDetail[theIndex].x = 11
             this.sideCount++
@@ -308,7 +315,7 @@ export default {
 
           this.deckDetail[randomNum].location = 'side'
           this.deckDetail[randomNum].sideCount= this.sideCount
-          // this.deckDetail[randomNum].x = 7
+          // this.dekDetail[randomNum].x = 4.5
           this.deckDetail[randomNum].isOpened = true
           this.sideCount++
           flag =true
@@ -327,6 +334,7 @@ export default {
     },
 
     reset(){
+    if(!this.hasGameStarted) return this.startGame() 
     if (!confirm("Would you like to reset the whole game?") ) return
 
     this.isGameOver=  false,
@@ -554,6 +562,9 @@ export default {
     },
 
     cardClick(card){
+      if(card.location == 'deck' && !this.hasGameStarted) return this.startGame()
+      if(card.location == 'deck' && this.hasGameStarted) return this.openMoreCard()
+
       if((this.spectate || !card.isOpened) && card.location == 'field' ){
         console.log(`specysyr card is: ${card.cardId}, x:${card.x}, y:${card.y}`)
         return 
@@ -860,22 +871,16 @@ export default {
 
     getStyle(card){
       if(card.location == 'field'){
-        // console.log(`field; ${card.cardId}`)
-        return`left: ${card.x * 51}px; top: ${card.y * 23+ 20}px; z-index: ${this.getZ(card)}`       
+        return`left: ${card.x * 51}px; top: ${card.y * 23+ 20}px; z-index: ${this.getZ(card)}` 
+
       }else if (card.location == 'side'){
-        //  this.$forceUpdate()
-        if(this.sideCheck(card) == 'no') return `opacity:0;right: -270px; top:-100px`
+        if(this.sideCheck(card) == 'no') return `opacity:0;right: -270px; top:-80px;`
 
         let index = this.sideCheck(card)
-        // console.log(index)
-
-
-
-        // return `top: ${this.getHeight(card.index)}; right: 100px; `
-        return `top: ${this.getHeight(index)}; right: -270px; z-index: ${100 +index} `
-        // :style="{'top': getHeight(index), 'z-index' : index+ 100}" @click="cardClick(card,'pick')"
+        return `top: ${this.getHeight(index)}; left: 227px; z-index: ${100 +index} 
+        `
       }else if(card.location == 'deck'){
-        return `top: -100px; right:-270px; opacity: 0 `
+        return `top: -95px; left:300px; opacity: 0; z-index: 0;  `
 
       }else if(card.location == 'finished'){
         return this.getCordninate(card)
@@ -1126,7 +1131,7 @@ export default {
     this.deckDetail =[]
     while(count<52){
 
-      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 5.5, y: undefined, isOpened: false,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false,deckIndex: count})
+      this.deckDetail.push({kind: kind,num: num,location: 'deck',x: 5.5, y: undefined, isOpened: true,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false,deckIndex: count})
 
       if(num ==13){
         num = 0
@@ -1188,6 +1193,7 @@ export default {
           return 
         }
         if(!this.isGameOver){
+          if(this.moveCount>10)
           alert('You Won!');
 
         }
@@ -1291,10 +1297,10 @@ body {
 
 .button {
   position: absolute;
-  margin-left: 312px;
+  margin-left: 316px;
   margin-top: -3px;
 
-  background-color:  darkgrey;
+  
   border-width: 1px 1px 1px 1px;
   border-color: black;
   border-style: solid;
