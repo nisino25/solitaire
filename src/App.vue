@@ -593,6 +593,7 @@ export default {
           }
           break;
       }
+      this.deal_auido.play()
       
 
       // flip card once it is gone
