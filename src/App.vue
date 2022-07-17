@@ -641,7 +641,6 @@ export default {
       if(card.location == 'deck' && !this.hasGameStarted) return this.startGame()
       if(card.location == 'deck' && this.hasGameStarted) return this.openMoreCard()
 
-      console.log('chu')
       this.spectate = false
       if((this.spectate || !card.isOpened) && card.location == 'field' ){
         console.log(`specysyr card is: ${card.cardId}, x:${card.x}, y:${card.y}`)
@@ -705,7 +704,11 @@ export default {
         const current = this.deckDetail.find(o => o.cardId === card.cardId)
         const previous = this.deckDetail.find(o => o.cardId === this.currentCardId)
 
-        if(current.x == previous.x) return
+        if(current.x == previous.x){
+          this.allUnselected()
+          return this.hasSelectedCard = false
+          
+        } 
         // console.log(`card: ${previous.cardId}}`)
 
         if(current.location !== 'field') {
