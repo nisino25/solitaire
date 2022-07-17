@@ -2,6 +2,7 @@
   <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <html>
     <head>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -13,7 +14,11 @@
         <div class="detail">
           <div>
             <!-- <div v-if="!hasGameStarted" class="button" @click="startGame()" style="background-color:  white;">START</div> -->
-            <div v-if="hasGameStarted" class="button" @click="reset()" style="background-color:  darkgrey;">RESET</div>
+
+            <!-- <div v-if="hasGameStarted" class="button" @click="reset()" style="background-color:  darkgrey;">RESET</div> -->
+
+            <div v-if="hasGameStarted" class="button" @click="finish()" style="background-color:  darkgrey;">Finish</div>
+            
             
             <!-- <br><br><br>
             <div class="button" @click="spectate = !spectate">spactate</div> -->
@@ -49,7 +54,8 @@
           <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 26px;  z-index: 1000" @click="startGame()" >
 
             <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
-            <div v-if="deckNum ==0 && hasGameStarted"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
+            <div v-if="deckNum ==0 && hasGameStarted && !isGameOver"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
+            <div v-if="isGameOver && noMoreDeck()" @click="cleanUp()"><i class="fa fa-check" style="font-size:33px;margin-top: 7px;"></i></div>
             
             <div v-if="!hasGameStarted" class="start"><span>START</span> </div>
             
@@ -389,6 +395,72 @@ export default {
         
       
     },
+    
+    async finish(){
+      await this.sleep(1000)
+
+      this.moveCount++
+      let count =0
+      let wholeCount = 0
+      let limit = 13
+
+      while(wholeCount < 4){
+        while(count <  limit){
+          this.deckDetail[count].x = wholeCount
+          this.deckDetail[count].y = limit -1 - count
+          this.deckDetail[count].location = 'field'
+          count++
+        }
+        wholeCount++
+        limit = limit+ 13
+      }
+
+      
+
+
+      for(let i in this.deckDetail){
+        this.deckDetail[i].isOpened = true
+      }
+
+      // await this.sleep(1000)
+      
+
+      
+    },
+
+    async cleanUp(){
+      let count = 0
+      let wholeCount = 0
+      let index = 0
+
+      while(wholeCount < 13){
+        
+        while(count < 4){
+          // console.log(index)
+    
+          this.deckDetail[index].location = 'finished'
+          await this.sleep(125)
+          index = index+ 13
+          count++
+        }
+
+        wholeCount++
+        // console.log(wholeCount)
+        count = 0
+
+        // while(count <  ){
+        //   this.deckDetail[count].x = wholeCount
+        //   this.deckDetail[count].y = limit -1 - count
+        //   this.deckDetail[count].location = 'field'
+        //   count++
+        // }
+        // wholeCount++
+        index = wholeCount
+      }
+
+
+      console.log('cleaning up')
+    },
 
     getSVG(kind){
       switch(kind){
@@ -632,6 +704,8 @@ export default {
         
         const current = this.deckDetail.find(o => o.cardId === card.cardId)
         const previous = this.deckDetail.find(o => o.cardId === this.currentCardId)
+
+        if(current.x == previous.x) return
         // console.log(`card: ${previous.cardId}}`)
 
         if(current.location !== 'field') {
@@ -964,6 +1038,13 @@ export default {
       return style;
     },
 
+    noMoreDeck(){
+      for(let i in this.deckDetail){
+        if(this.deckDetail[i].location== 'deck') return false
+      }
+      return true
+    }
+
 
 
   },
@@ -1204,6 +1285,7 @@ export default {
           alert('You Won!');
 
         }
+        if(this.moveCount == 0) return
         console.log(' game is over')
         this.isGameOver = true
         this.spectate = true
