@@ -450,7 +450,7 @@ export default {
           // console.log(index)
     
           if(this.deckDetail[index].location !== 'finished') {
-            this.deckDetail[index].location !== 'finished'
+            this.deckDetail[index].location = 'finished'
             await this.sleep(125)
           }
           index = index+ 13
