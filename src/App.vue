@@ -171,7 +171,6 @@ export default {
       needSound: true,
 
       shuffle_audio: new Audio(require('@/assets/sounds/shuffle_sound.wav')),
-      move_audio: new Audio(require('@/assets/sounds/move_card.wav')),
       deal_auido: new Audio(require('@/assets/sounds/deal.wav')),
       // My Movie 1.m4a
 
@@ -250,7 +249,7 @@ export default {
             this.deckDetail[randomNum].isOpened = true
             horizontal++
             vertical =0
-            this.shuffle_audio.play();
+            if(this.needSound)  this.shuffle_audio.play();
           }else if(horizontal == 3 && vertical ==4){
             this.deckDetail[randomNum].isOpened = true
             horizontal++
@@ -277,7 +276,7 @@ export default {
         }
       }
       // var shuffle_audio = new shuffle_audio('../public/shuffle_audio/shuffle_sound.wav');
-      this.shuffle_audio.play();
+      if(this.needSound)  this.shuffle_audio.play();
       // console.log(this.deckDetail)
 
 
@@ -292,7 +291,7 @@ export default {
       // reset cards to decks
       if(this.deckNum ==0){
         this.stopAllTheSound()
-        this.shuffle_audio.play()
+        if(this.needSound)  this.shuffle_audio.play()
         this.isMixedOver = true
         for (let i in this.deckDetail){
           if(this.deckDetail[i].location == 'side'){
@@ -304,8 +303,11 @@ export default {
       }
 
       if(this.isMixedOver){
-        // this.deal_auido.pause()
-        this.deal_auido.play()
+
+        if(this.needSound) {
+          this.deal_auido.play()
+        }
+
         for(let i in this.shuffledIndex){
           let theIndex = this.shuffledIndex[i]
           if(this.deckDetail[theIndex].location == 'deck'){
@@ -340,9 +342,10 @@ export default {
         }
       }
       // let myAudio = document.getElementById('myAudio');
-      // myAudio.play();
       
-      this.deal_auido.play()
+      if(this.needSound) {
+        this.deal_auido.play()
+      }
       
     },
 
@@ -603,7 +606,9 @@ export default {
           }
           break;
       }
-      this.deal_auido.play()
+      if(this.needSound) {
+          this.deal_auido.play()
+        }
       
 
       // flip card once it is gone
@@ -818,7 +823,7 @@ export default {
         previous.movingNow = true
 
         // this.deal_auido.pause()
-        this.deal_auido.play()
+        if(this.needSound)  this.deal_auido.play()
         
         this.allUnselected()
         // setTimeout(() => this.basketAddSuccess = false, 2000);
