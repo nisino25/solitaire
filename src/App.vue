@@ -14,10 +14,16 @@
         <div class="detail">
           <div>
             <!-- <div v-if="!hasGameStarted" class="button" @click="startGame()" style="background-color:  white;">START</div> -->
+            <div v-if="needSound" class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;"><i class='fas fa-volume-up' style='font-size:15px'></i></div>
 
-            <!-- <div v-if="hasGameStarted" class="button" @click="reset()" style="background-color:  darkgrey;">RESET</div> -->
 
-            <div v-if="hasGameStarted" class="button" @click="finish()" style="background-color:  darkgrey;">Finish</div>
+            <div v-else class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;"><i class='fas fa-volume-mute' style='font-size:15px'></i></div>
+
+
+
+            <div v-if="hasGameStarted" class="button button2" @click="reset()" style="background-color:  darkgrey;">RESET</div>
+
+            <!-- <div v-if="hasGameStarted" class="button" @click="finish()" style="background-color:  darkgrey;">Finish</div> -->
             
             
             <!-- <br><br><br>
@@ -161,6 +167,8 @@ export default {
 
 
       spectate: false,
+
+      needSound: true,
 
       shuffle_audio: new Audio(require('@/assets/sounds/shuffle_sound.wav')),
       move_audio: new Audio(require('@/assets/sounds/move_card.wav')),
@@ -438,8 +446,10 @@ export default {
         while(count < 4){
           // console.log(index)
     
-          this.deckDetail[index].location = 'finished'
-          await this.sleep(125)
+          if(this.deckDetail[index].location !== 'finished') {
+            this.deckDetail[index].location !== 'finished'
+            await this.sleep(125)
+          }
           index = index+ 13
           count++
         }
@@ -1045,6 +1055,7 @@ export default {
     noMoreDeck(){
       for(let i in this.deckDetail){
         if(this.deckDetail[i].location== 'deck') return false
+        if(this.deckDetail[i].location== 'side') return false
       }
       return true
     }
@@ -1390,8 +1401,7 @@ body {
 
 .button {
   position: absolute;
-  margin-left: 316px;
-  margin-top: -3px;
+  
 
   
   border-width: 1px 1px 1px 1px;
@@ -1407,6 +1417,16 @@ body {
   font-size: 13px;
 
   cursor: pointer;
+}
+
+.button1{
+  right: 70px;
+  margin-top: -3px;
+}
+
+.button2{
+  right: 12.5px;
+  margin-top: -3px;
 }
 
 
