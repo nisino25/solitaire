@@ -14,13 +14,13 @@
         <div class="detail">
           <div>
             <!-- <div v-if="!hasGameStarted" class="button" @click="startGame()" style="background-color:  white;">START</div> -->
-            <div v-if="hasGameStarted" class="button button2" @click="reset()" style="background-color:  darkgrey;" >RESET</div>
+            <div v-if="hasGameStarted" class="button button2" @click="reset()" style="background-color:  darkgrey; " >RESET</div>
 
             
-            <div v-if="needSound" class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;" :style="[hasGameStarted ? 'margin-right:36px ' : 'margin-right: 111px;']" ><i class='fas fa-volume-up' style='font-size:15px'></i></div>
+            <div v-if="needSound" class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;" :style="[hasGameStarted ? 'margin-right:41px ' : 'margin-right: 112px;']" ><i class='fas fa-volume-up' style='font-size:15px'></i></div>
 
 
-            <div v-else class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;" ><i class='fas fa-volume-mute' style='font-size:15px'></i></div>
+            <div v-else class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;"  :style="[hasGameStarted ? 'margin-right:41px ' : 'margin-right: 112px;']" ><i class='fas fa-volume-mute' style='font-size:15px'></i></div>
 
 
 
@@ -304,7 +304,7 @@ export default {
 
       // reset cards to decks
       if(this.deckNum ==0){
-        this.stopAllTheSound()
+        // this.stopAllTheSound()
         if(this.needSound)  this.shuffle_audio.play()
         this.isMixedOver = true
         for (let i in this.deckDetail){
@@ -454,6 +454,7 @@ export default {
     },
 
     async cleanUp(){
+      console.log('nfw')
       if(!this.hasClened) return 
 
       this.hasCleaned = true
@@ -1399,13 +1400,13 @@ body {
   border-style: solid;
   color: black;
 
-  padding: 3px 5px;
+  padding: 3px 4.5px;
 
   text-align: center;
   text-decoration: none;
   float: right;
   /* display: inline-block; */
-  font-size: 13px;
+  font-size: 12px;
 
   cursor: pointer;
 }
