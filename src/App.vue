@@ -148,6 +148,7 @@ export default {
   data(){
     return{
       isGameOver: false,
+      hasClened: false,
       deckDetail: undefined,
       hasGameStarted: false,
       sideCount: 0,
@@ -220,6 +221,17 @@ export default {
         this.openMoreCard()
         return
       }
+
+
+      // let data = localStorage.solitaire
+      // data = JSON.parse(data);  
+      // // data = data[0]
+      let num = JSON.parse(localStorage.gameCount);  
+      localStorage.gameCount = JSON.stringify(num +1);  
+      // console.log(localStorage.gameCount)
+      // console.log(num)
+
+      
       this.startCounting()
       this.hasGameStarted = true
       console.log('starting game')
@@ -440,6 +452,12 @@ export default {
     },
 
     async cleanUp(){
+      if(!this.hasClened) return 
+
+      this.hasCleaned = true
+
+      let num = JSON.parse(localStorage.wCount);  
+      localStorage.wCount = JSON.stringify(num +1);  
       let count = 0
       let wholeCount = 0
       let index = 0
@@ -963,11 +981,6 @@ export default {
       // return 100+  position * 30+ 'px'
     },
 
-    stopAllTheSound(){
-      // this.shuffle_audio.pause()
-      // this.move_audio.pause()
-      // this.deal_auido.pause()
-    },
 
     getStyle(card){
       if(card.location == 'field'){
@@ -1215,6 +1228,20 @@ export default {
   },
 
   mounted: function(){
+    if(!localStorage.solitaire){
+      // let data = []
+      // data.push({gameCount: 0, moveCount: 0, wCount: 0})
+      // data = JSON.stringify(data)
+
+      // localStorage.solitaire = data
+      localStorage.solitaire = true
+      localStorage.gameCount = JSON.stringify(0)
+      localStorage.moveCount = JSON.stringify(0)
+      localStorage.wCount = JSON.stringify(0)
+    }
+
+
+
     this.isGameOver=  false,
     this.deckDetail =  undefined
     this.hasGameStarted= false
@@ -1300,11 +1327,6 @@ export default {
           // console.log(`still going on with: ${falseCount} `)
           return 
         }
-        if(!this.isGameOver){
-          if(this.moveCount>10)
-          alert('You Won!');
-
-        }
         if(this.moveCount == 0) return
         console.log(' game is over')
         this.isGameOver = true
@@ -1314,50 +1336,11 @@ export default {
       }
     },
 
-    // deckDetail: {
-      
-    //   deep:true,
-    //   handler() {
-    //     for(let i in this.deckDetail){
-    //       if(this.deckDetail[i].location == 'field' && this.deckDetail[i].isOpened ){
-    //         let card = this.deckDetail[i]
-    //         console.log(`Card: ${card.cardId}}, x: `)
-    //       }
-    //     }
-    //     if(!this.hasGameStarted) return
-    //     let count = 0
-    //     let flag = true
-    //     let falseCount= 0
-    //     if(falseCount == 1) return
-    //     while(count < 7){
-    //       for(let i in this.rows[count]){
-    //         if(!this.rows[count][i].isOpened){
-    //           flag= false
-    //           falseCount++
-              
-    //         }
-            
-    //       }
-
-          
-    //       count++
-    //     }
-
-    //     if(!flag){
-    //       // console.log(`still going on with: ${falseCount} `)
-    //       return 
-    //     }
-    //     if(!this.isGameOver){
-    //       alert('You Won!');
-
-    //     }
-    //     console.log(' game is over')
-    //     this.isGameOver = true
-    //     this.spectate = true
-        
-
-    //   }
-    // },
+    moveCount(){
+      let num = JSON.parse(localStorage.moveCount);  
+      localStorage.moveCount  = JSON.stringify(num +1);  
+    },
+    
   },
 }
 </script>
