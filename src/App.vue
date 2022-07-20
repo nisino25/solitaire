@@ -14,7 +14,8 @@
         <div class="detail">
           <div>
             <!-- <div v-if="!hasGameStarted" class="button" @click="startGame()" style="background-color:  white;">START</div> -->
-            <div v-if="hasGameStarted" class="button button2" @click="reset()" style="background-color:  darkgrey; " >RESET</div>
+            <!-- <div v-if="hasGameStarted" class="button button2" @click="reset()" style="background-color:  darkgrey; " >RESET</div> -->
+            <div v-if="hasGameStarted" class="button button2" @click="finish()" style="background-color:  darkgrey; " >finish</div>
 
             
             <div v-if="needSound" class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;" :style="[hasGameStarted ? 'margin-right:41px ' : 'margin-right: 112px;']" ><i class='fas fa-volume-up' style='font-size:15px'></i></div>
@@ -455,7 +456,7 @@ export default {
 
     async cleanUp(){
       console.log('nfw')
-      if(!this.hasClened) return 
+      if(this.hasClened) return 
 
       this.hasCleaned = true
 
