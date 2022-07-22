@@ -115,7 +115,7 @@
         </div>
 
         <div class="totalDetail" >
-          <span>Games played: {{gCount}}:  Wins: {{wCount}} <br>Total Moves: {{mCount}}</span>
+          <span>Games played: {{gCount}},  Wins: {{wCount}} <br>Total Moves: {{mCount}}</span>
         </div>
 
         <div class="undo-section" @click="allUnselected()">
@@ -1475,7 +1475,7 @@ body {
 .totalDetail{
   /* background-color: red; */
   position:absolute;
-  bottom: 20px;
+  bottom: 12.5px;
   text-align: left;
   /* width: 100%; */
   /* height: 100px; */
