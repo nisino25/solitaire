@@ -24,20 +24,12 @@
             <div v-else class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;"  :style="[hasGameStarted ? 'margin-right:41px ' : 'margin-right: 112px;']" ><i class='fas fa-volume-mute' style='font-size:15px'></i></div>
 
 
-
-
-            <!-- <div v-if="hasGameStarted" class="button" @click="finish()" style="background-color:  darkgrey;">Finish</div> -->
-            
-            
-            <!-- <br><br><br>
-            <div class="button" @click="spectate = !spectate">spactate</div> -->
           </div>
 
           <div style=" margin-left:20px;">
             <i class="fa fa-clock-o" style="font-size:125%;margin-right:5px"></i><span>{{showingTimer}}:</span>
             &nbsp;
-            <span style="margin-top:50px">Move Count: {{moveCount}}</span>
-            <!-- <span @click="spectate = !spectate" style="background-color: aqua; ">:{{hasSelectedCard}}:</span> --> 
+            <span style="margin-top:50px">Moves: {{moveCount}}</span>
           </div>
         </div>
 
@@ -120,6 +112,10 @@
 
         
 
+        </div>
+
+        <div class="totalDetail" >
+          <span>Games played: {{gCount}}:  Wins: {{wCount}} <br>Total Moves: {{mCount}}</span>
         </div>
 
         <div class="undo-section" @click="allUnselected()">
@@ -1228,6 +1224,19 @@ export default {
         }
       }
       return list
+    },
+
+    gCount: function(){
+      if(!localStorage.gameCount) return
+      return localStorage.gameCount
+    },
+    wCount: function(){
+      if(!localStorage.wCount) return 
+      return localStorage.wCount
+    },
+    mCount: function(){
+      if(!localStorage.moveCount) return 
+      return localStorage.moveCount
     }
   },
 
@@ -1461,6 +1470,15 @@ body {
   /* opacity: 0.2; */
   /* height:450px; */
   position: absolute;
+}
+
+.totalDetail{
+  /* background-color: red; */
+  position:absolute;
+  bottom: 20px;
+  text-align: left;
+  /* width: 100%; */
+  /* height: 100px; */
 }
 
 
