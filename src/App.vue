@@ -6,6 +6,7 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+      
 
     </head>
     <body>
@@ -13,15 +14,13 @@
 
         <div class="detail">
           <div>
-            <!-- <div v-if="!hasGameStarted" class="button" @click="startGame()" style="background-color:  white;">START</div> -->
-            <div v-if="hasGameStarted" class="button button2" @click="reset()" style="background-color:  darkgrey; " >RESET</div>
-            <!-- <div v-if="hasGameStarted" class="button button2" @click="finish()" style="background-color:  darkgrey; " >finish</div> -->
+            <div v-if="hasGameStarted && moveCount !==0 && !noMoreSide() " class="button button1" @click="undo()" style="background-color:  darkgrey;" :style="[hasGameStarted ? 'margin-right:35px ' : 'display: none;']" ><i class='fa fa-reply' style='font-size:15px'></i></div>
 
             
-            <div v-if="needSound" class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;" :style="[hasGameStarted ? 'margin-right:41px ' : 'margin-right: 112px;']" ><i class='fas fa-volume-up' style='font-size:15px'></i></div>
+            <!-- <div v-if="needSound" class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;" :style="[hasGameStarted ? 'margin-right:5px ' : 'margin-rl: 112px;']" ><i class='fa fa-reply' style='font-size:15px'></i></div>
 
 
-            <div v-else class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;"  :style="[hasGameStarted ? 'margin-right:41px ' : 'margin-right: 112px;']" ><i class='fas fa-volume-mute' style='font-size:15px'></i></div>
+            <div v-else class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;"  :style="[hasGameStarted ? 'margin-right:41px ' : 'margin-right: 112px;']" ><i class='fas fa-volume-mute' style='font-size:15px'></i></div> -->
 
 
           </div>
@@ -55,7 +54,7 @@
           <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 26px;  z-index: 1000" @click="startGame()" >
 
             <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
-            <div v-if="deckNum ==0 && hasGameStarted && !isGameOver"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
+            <div v-if="deckNum == 0 && hasGameStarted && !isGameOver"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
             <div v-if="isGameOver && noMoreDeck()" @click="cleanUp()"><i class="fa fa-check" style="font-size:33px;margin-top: 7px;"></i></div>
             
             <div v-if="!hasGameStarted" class="start"><span>START</span> </div>
@@ -115,8 +114,28 @@
         </div>
 
         <div class="totalDetail" >
-          <span>Games played: {{gCount}},  Wins: {{wCount}} <br>Total Moves: {{mCount}}</span>
+          <span>Games played: {{gCount}},  Wins: {{wCount}} 
+          <br>
+          Total Moves: {{mCount}}, <span></span> </span>
+          
         </div>
+
+        <div class="settings-buttons" >
+
+          <div style="position:absolute">
+  
+              <div v-if="hasGameStarted" class="button button2" @click="reset()" style="background-color:  darkgrey; left:40px" >RESET</div>
+  
+              
+              <div v-if="needSound" class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;" :style="[hasGameStarted ? 'margin-right:5px ' : 'margin-right: 76px;']" ><i class='fas fa-volume-up' style='font-size:15px'></i></div>
+  
+  
+              <div v-else class="button button1" @click="needSound = !needSound" style="background-color:  darkgrey;"  :style="[hasGameStarted ? 'margin-right:5px ' : 'margin-right: 250px;']" ><i class='fas fa-volume-mute' style='font-size:15px'></i></div>
+  
+  
+          </div>
+        </div>
+
 
         <div class="undo-section" @click="allUnselected()">
 
@@ -135,9 +154,6 @@ import heartImage from "../public/heart-svgrepo-com.svg"
 import clubImage from "../public/clover-black-shape-svgrepo-com.svg"
 import spadeImage from "../public/spades-svgrepo-com.svg"
 import diamondImage from "../public/diamond-svgrepo-com.svg"
-// import { time } from "console"
-
-// import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   name: 'App',
@@ -292,6 +308,35 @@ export default {
 
 
       this.test()
+
+    },
+
+    shuffleDeck(){
+      while(this.deckNum !== 0){
+        let flag = false
+        while(!flag){
+          let randomNum =Math.floor(Math.random() * 52);
+          if(this.deckDetail[randomNum].location == 'deck'){
+            this.shuffledIndex.push(randomNum)
+
+            this.deckDetail[randomNum].location = 'side'
+            this.deckDetail[randomNum].sideCount= this.sideCount
+            this.deckDetail[randomNum].isOpened = true
+            this.sideCount++
+            this.deckDetail[randomNum].zCount= this.moveCount
+            flag =true
+          }
+        }
+      }
+
+      this.isMixedOver = true
+      for (let i in this.deckDetail){
+        if(this.deckDetail[i].location == 'side'){
+          this.deckDetail[i].location = 'deck'
+          this.deckDetail[i].sideCount = 0
+        }
+      }
+
 
     },
 
@@ -1076,7 +1121,70 @@ export default {
         if(this.deckDetail[i].location== 'side') return false
       }
       return true
-    }
+    },
+
+    noMoreSide(){
+      for(let i in this.deckDetail){
+        if(this.deckDetail[i].location== 'side') return false
+      }
+      return true
+    },
+
+    undo(){
+      console.log(this.sideCount)
+      this.allUnselected()
+      this.moveCount--
+      this.sideCount--
+
+      // find the card that is on side the last card
+      for(let i in this.deckDetail){
+        let theCard = this.deckDetail[i]
+        if(theCard.location == 'side' && theCard.sideCount == this.sideCount){
+          console.log(`${theCard.cardId}:${theCard.sideCount}`)
+          theCard.location = 'deck'
+          theCard.sideCount = 0
+        }
+      }
+
+
+
+      // if(this.deckDetail[theIndex].location == 'deck'){
+      //   // this.deckDetail[theIndex].location = 'side'
+      //   // this.deckDetail[theIndex].isOpened = true
+      //   // this.deckDetail[theIndex].sideCount= this.sideCount
+        
+      //   // this.deckDetail[theIndex].x = 11
+      //   // this.sideCount++
+      //   // this.moveCount++
+        
+      //   // return
+
+      // }
+
+      // let randomNum =Math.floor(Math.random() * 52);
+      //   if(this.deckDetail[randomNum].location == 'deck'){
+      //     this.shuffledIndex.push(randomNum)
+
+      //     this.deckDetail[randomNum].location = 'side'
+      //     this.deckDetail[randomNum].sideCount= this.sideCount
+      //     // this.dekDetail[randomNum].x = 4.5
+      //     this.deckDetail[randomNum].isOpened = true
+      //     this.sideCount++
+      //     this.deckDetail[randomNum].zCount= this.moveCount
+      //     flag =true
+      //     this.moveCount++
+      //   }
+
+      //   if(this.needSound)  this.shuffle_audio.play()
+      //   this.isMixedOver = true
+      //   for (let i in this.deckDetail){
+      //     if(this.deckDetail[i].location == 'side'){
+      //       this.deckDetail[i].location = 'deck'
+      //       this.deckDetail[i].sideCount = 0
+      //     }
+      //   }
+
+    },
 
 
 
@@ -1252,6 +1360,8 @@ export default {
       localStorage.moveCount = JSON.stringify(0)
       localStorage.wCount = JSON.stringify(0)
     }
+
+    this.shuffleDeck()
 
 
 
@@ -1481,6 +1591,24 @@ body {
   /* height: 100px; */
 }
 
+.settings-buttons{
+  /* background-color: red; */
+  position:absolute;
+  bottom: 12.5px;
+  display:flex;
+
+}
+
+.settings-buttons div {
+  bottom:25px;
+  display:flex;
+  opacity: 0.8;
+  float: right;
+}
+
+.settings-buttons div div{
+  position: absolute;
+}
 
 .holder{
   /* margin-top: 10px; */
