@@ -312,9 +312,13 @@ export default {
     },
 
     shuffleDeck(){
+      let count = 0
       while(this.deckNum !== 0){
+        
+        console.log('heu')
         let flag = false
         while(!flag){
+          count++
           let randomNum =Math.floor(Math.random() * 52);
           if(this.deckDetail[randomNum].location == 'deck'){
             this.shuffledIndex.push(randomNum)
@@ -323,7 +327,7 @@ export default {
             this.deckDetail[randomNum].sideCount= this.sideCount
             this.deckDetail[randomNum].isOpened = true
             this.sideCount++
-            this.deckDetail[randomNum].zCount= this.moveCount
+            this.deckDetail[randomNum].zCount= count
             flag =true
           }
         }
@@ -1361,7 +1365,7 @@ export default {
       localStorage.wCount = JSON.stringify(0)
     }
 
-    this.shuffleDeck()
+    
 
 
 
@@ -1409,6 +1413,8 @@ export default {
       num++
     
     }
+
+    this.shuffleDeck()
 
     // console.log(this.deckDetail)
   },
