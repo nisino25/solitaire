@@ -1,16 +1,16 @@
 <template>
-  <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <html>
     <head>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
       
 
     </head>
     <body>
-      <div class="wrapper">
+      <div class="wrapper" style="z-index: 1;">
 
         <div class="detail">
           <div>
@@ -42,7 +42,7 @@
           <div><div class="empty child"></div></div>
 
           <!-- ---- pile --------------->
-          <div style="margin-left: 25px;">
+          <div style="margin-left: 25px; " >
             <div style="position: absolute; width: 43px; z-index: 0; " >
               <div  class="empty child" ></div>
             </div>
@@ -52,12 +52,15 @@
 
 
           <div class="child holder " :class="deckNum == 0? 'empty' : ''" style="margin-left: 26px;  z-index: 1000" @click="startGame()" >
+              <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
+              <div v-if="deckNum == 0 && hasGameStarted && !isGameOver"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
+              <div v-if="isGameOver && noMoreDeck()" @click="cleanUp()"><i class="fa fa-check" style="font-size:33px;margin-top: 7px;"></i></div>
+              
+              <div v-if="!hasGameStarted && onlineStatus !== 'waiting'" class="start"><span>START</span> </div>
 
-            <div v-if="deckNum !==0 && hasGameStarted" class='back'></div>
-            <div v-if="deckNum == 0 && hasGameStarted && !isGameOver"> <img style="margin-top:13px;" src="../public/iconmonstr-refresh-1.svg" ></div>
-            <div v-if="isGameOver && noMoreDeck()" @click="cleanUp()"><i class="fa fa-check" style="font-size:33px;margin-top: 7px;"></i></div>
-            
-            <div v-if="!hasGameStarted" class="start"><span>START</span> </div>
+              <div v-if="!hasGameStarted && onlineStatus== 'waiting'" class="start"><i class="fa fa-hourglass" style="font-size:24px;color:black"></i> </div>
+
+
             
           </div>
           <span style="margin-top: 62px; color:FloralWhite; font-weight:bold; text-align: middle;" :style="[deckNum >= 10 ? 'margin-left:-39px ' : 'margin-left:-35px']">{{deckNum}}</span>
@@ -114,9 +117,17 @@
         </div>
 
         <div class="totalDetail" >
-          <span>Games played: {{gCount}},  Wins: {{wCount}} 
-          <br>
-          Total Moves: {{mCount}}, <span></span> </span>
+          <span>Total Games: {{gCount}},  Wins: {{wCount}},  Moves: {{mCount}}</span>
+          
+        </div>
+
+        <div class="extra">
+          <div class="button button2" @click="showModal=true" style="background-color:  darkgrey; left:10px" >Multiplayer</div>
+          <!-- <span v-if="playingInARoom" style="left:10px">Room Code: {{roomCode}}</span>
+          <span v-if="playingInARoom && onlineStatus == 'playing'" style="left:100px"><i class="fa fa-user" style="font-size:24px"></i>{{opponent}}</span> -->
+
+          <span v-if="playingInARoom" style="margin-left:-15px">Room Code: {{roomCode}},</span>
+          <i v-if="playingInARoom && onlineStatus == 'playing'"  class="fa fa-user" style="font-size:24px; margin-left: 5px"></i><span v-if="playingInARoom && onlineStatus == 'playing'"  style="margin-left: 0px">&nbsp; {{opponent}}</span>
           
         </div>
 
@@ -143,6 +154,34 @@
 
 
       </div>
+
+      <transition name="fade" >
+        <div class='modal-overlay fade-in' v-if="showModal" style="height: 100vh">
+          <div class="modal">
+
+            <div>
+              <form onsubmit="event.preventDefault()">
+                <label for="fname">Username</label>
+                <input type="text" placeholder="User name.." v-model="userName" >
+
+                
+                <button @click="createARoom()" class="create" >Create</button>
+                <hr>OR<br>
+                <label for="fname">Type the room code</label>
+                <input type="text" placeholder="Room code.." v-model="roomCode" >
+                <span v-if="warning" style="color:red">{{warning}}</span>
+                <button @click="joinARoom()" class="join"  @keyup.enter="joinARoom()">Join</button>
+                <button @click="closingModal()" class="cancel" >Cancel</button>
+
+              </form>
+            </div>
+
+          </div>
+          
+        </div>
+
+      
+    </transition>
     </body>
      
   </html>
@@ -155,6 +194,10 @@ import clubImage from "../public/clover-black-shape-svgrepo-com.svg"
 import spadeImage from "../public/spades-svgrepo-com.svg"
 import diamondImage from "../public/diamond-svgrepo-com.svg"
 
+import db from './firebase.js';
+
+// import { doc, onSnapshot } from "firebase/firestore";
+
 export default {
   name: 'App',
   components: {
@@ -162,6 +205,14 @@ export default {
   },
   data(){
     return{
+      userName: '',
+      roomCode: undefined,
+      playingInARoom: false,
+      warning: undefined,
+      tempDeck: [],
+      onlineStatus: 'none',
+      opponent: '',
+
       isGameOver: false,
       hasClened: false,
       deckDetail: undefined,
@@ -188,6 +239,8 @@ export default {
 
       shuffle_audio: new Audio(require('@/assets/sounds/shuffle_sound.wav')),
       deal_auido: new Audio(require('@/assets/sounds/deal.wav')),
+
+      showModal: false,
       // My Movie 1.m4a
 
       // movingSpeed: 0.2,
@@ -230,6 +283,11 @@ export default {
       });
     },
     async startGame(){
+      if(!this.hasGameStarted && this.onlineStatus == 'waiting'){
+        alert('Waiting for other player')
+        return
+      }
+      
       
 
       if(this.hasGameStarted){
@@ -250,56 +308,59 @@ export default {
       this.startCounting()
       this.hasGameStarted = true
       console.log('starting game')
-      let count = 0
-      let horizontal =0
-      let vertical = 0
+      if(!this.playingInARoom){
 
-      while(count<28){
-        let randomNum =Math.floor(Math.random() * 51);
-        if(this.deckDetail[randomNum].location == 'deck'){
-          await this.sleep(25);
-          this.deckDetail[randomNum].location = 'field'
-          this.deckDetail[randomNum].x = horizontal
-          this.deckDetail[randomNum].y = vertical
-          vertical++
-          // this.deckDetail[randomNum].isOpened = false
-
-          if(horizontal== 0 &&  vertical ==1){
-            this.deckDetail[randomNum].isOpened = true
-            horizontal++
-            vertical =0
-          }else if(horizontal == 1 && vertical ==2){
-            this.deckDetail[randomNum].isOpened = true
-            horizontal++
-            vertical =0
-          }else if(horizontal == 2 && vertical ==3){
-            this.deckDetail[randomNum].isOpened = true
-            horizontal++
-            vertical =0
-            if(this.needSound)  this.shuffle_audio.play();
-          }else if(horizontal == 3 && vertical ==4){
-            this.deckDetail[randomNum].isOpened = true
-            horizontal++
-            vertical =0
-          }else if(horizontal == 4 && vertical ==5){
-            this.deckDetail[randomNum].isOpened = true
-            horizontal++
-            vertical =0
-          }else if(horizontal == 5  && vertical ==6){
-            this.deckDetail[randomNum].isOpened = true
-            horizontal++
-            vertical =0
-          }else if(horizontal == 6  && vertical ==7){
-            this.deckDetail[randomNum].isOpened = true
-            horizontal++
-            vertical =0
-          }else{
-            this.deckDetail[randomNum].isOpened = false
+        let count = 0
+        let horizontal =0
+        let vertical = 0
+  
+        while(count<28){
+          let randomNum =Math.floor(Math.random() * 51);
+          if(this.deckDetail[randomNum].location == 'deck'){
+            await this.sleep(25);
+            this.deckDetail[randomNum].location = 'field'
+            this.deckDetail[randomNum].x = horizontal
+            this.deckDetail[randomNum].y = vertical
+            vertical++
+            // this.deckDetail[randomNum].isOpened = false
+  
+            if(horizontal== 0 &&  vertical ==1){
+              this.deckDetail[randomNum].isOpened = true
+              horizontal++
+              vertical =0
+            }else if(horizontal == 1 && vertical ==2){
+              this.deckDetail[randomNum].isOpened = true
+              horizontal++
+              vertical =0
+            }else if(horizontal == 2 && vertical ==3){
+              this.deckDetail[randomNum].isOpened = true
+              horizontal++
+              vertical =0
+              if(this.needSound)  this.shuffle_audio.play();
+            }else if(horizontal == 3 && vertical ==4){
+              this.deckDetail[randomNum].isOpened = true
+              horizontal++
+              vertical =0
+            }else if(horizontal == 4 && vertical ==5){
+              this.deckDetail[randomNum].isOpened = true
+              horizontal++
+              vertical =0
+            }else if(horizontal == 5  && vertical ==6){
+              this.deckDetail[randomNum].isOpened = true
+              horizontal++
+              vertical =0
+            }else if(horizontal == 6  && vertical ==7){
+              this.deckDetail[randomNum].isOpened = true
+              horizontal++
+              vertical =0
+            }else{
+              this.deckDetail[randomNum].isOpened = false
+            }
+  
+  
+            
+            count++
           }
-
-
-          
-          count++
         }
       }
       // var shuffle_audio = new shuffle_audio('../public/shuffle_audio/shuffle_sound.wav');
@@ -308,6 +369,28 @@ export default {
 
 
       this.test()
+
+      if(this.playingInARoom){
+        for(let i in this.tempDeck){
+          // if(this.tempDeck[i].location == 'field'){
+          //   }
+            await this.sleep(25);
+
+          this.deckDetail[i] = this.tempDeck[i]
+        }
+        // this.deckDetail = this.tempDeck
+        console.log(this.tempDeck)
+        for(let i in this.tempDeck){
+          let card = this.tempDeck[i]
+          if(card.isOpened && card.location == 'field'){
+            console.log(card.cardId)
+          }
+        }
+        console.log('fixing again')
+        this.deckDetail = this.tempDeck
+        return
+        // console.log(this.temp
+      }
 
     },
 
@@ -1194,6 +1277,342 @@ export default {
 
 
 
+    // -------------- multiplayer -------------
+    tempCreateRoom(){
+      // generate the room number
+      
+      // generate the deck and shuffle
+
+
+
+
+    },
+
+    generateRoomCode(){
+      var randomChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+			var result = '';
+      var char = null;
+			for ( var i = 0; i < 5; i++ ) {
+
+        char = randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+        if(char === 'l' || char === 'I' || char === 'o'  || char === 'O' || char === '0'){
+          // since it is really hard to distinguishj I and l
+          console.log(`I hate ${char} || ${i}`) 
+          i--;
+        }else{
+					result += char
+        }
+			}
+      return result
+    },
+
+    createARoom(){
+      this.warning = undefined
+      let result = this.generateRoomCode()
+      
+
+      let r= confirm(`Are you ready to create a room "${result}"?`);
+      if(!r){
+        // this.movingRobber = false;
+        return;
+      }
+
+      localStorage.userName = this.userName
+
+      console.log('sending data')
+      const ref = db.collection('solitaire')
+      ref.doc(`${result}`).set({
+        // TotalNum: this.userNum 
+        hostName: this.userName,
+        gameStatus: 'waiting',
+        deck: JSON.stringify(this.setUpAsAHost()),
+        shuffle: JSON.stringify(this.shuffledIndex),
+
+
+        
+        // joinedplayer: '',
+        // createdTime: Date.now(),
+        // password: this.needPassword,
+        // status: 'waiting',
+        // roomNumber: this.userNum,
+        // guestID: '',
+        // rejected: '',
+
+
+      })
+      this.roomCode = result
+
+      this.playingInARoom = true
+      console.log(this.roomCode)
+      this.showModal = false
+      this.onlineStatus = 'waiting'
+
+      // this.hasGameStarted = true
+
+      this.ReciveTheData()
+
+      // console.log('Sent data now')
+
+      // this.showingPage = 'waiting'
+      // this.playerRole = 'host'
+      
+      // this.theRoom.isItOpen = true
+
+    },
+
+
+    async joinARoom(){
+      console.log('trying to join ' + this.roomCode )
+      localStorage.userName = this.userName
+      
+      const ref = db.collection('solitaire').doc(`${this.roomCode}`)
+      ref.get()
+        .then((docSnapshot) => {
+          if (docSnapshot.exists) {
+            console.log('yaas')
+            this.warning = undefined
+            ref.onSnapshot((doc) => {
+              console.log(doc.data())
+              
+              ref.update({
+                guestName: this.userName,
+                gameStatus: 'playing',
+              })
+
+              this.playingInARoom = true
+              console.log(this.roomCode)
+              this.showModal = false
+              // this.hasGameStarted = true
+              console.log(doc.data().hostName)
+              this.opponent = doc.data().hostName
+              this.onlineStatus= 'playing'
+
+              this.isMixedOver = true
+              this.shuffledIndex = JSON.parse(doc.data().shuffle)
+              this.tempDeck = JSON.parse(doc.data().deck)
+
+
+              this.ReciveTheData()
+              
+            });
+          } else {
+            this.warning = `"${this.roomCode}" does not exist`
+            console.log('not exisiting')
+          }
+      });
+
+    },
+
+    ReciveTheData(){
+      // db.collection('solitaire').onSnapshot(snap => {
+      // snap.forEach(doc => {
+      //   // this.waitingRoom.status = ''
+
+      //   console.log(doc(`${this.roomCode}`).data())
+      //   // console.log(this.theRoom)
+      // });
+      // })
+
+      db.collection("solitaire").doc(`${this.roomCode}`)
+      .onSnapshot((doc) => {
+        if(this.onlineStatus == 'waiting'){
+          if(doc.data().gameStatus == 'playing'){
+            this.onlineStatus= 'playing'
+            // console.log(doc.data().guestName)
+            this.opponent= doc.data().guestName
+          }
+        }
+        console.log(doc.data().gameStatus)
+          // var source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+          // console.log(source, " data: ", doc.data());
+      });
+
+
+        
+    },
+
+    closingModal(){
+      this.warning = undefined
+      this.showModal = false
+      this.roomCode =undefined
+      // this.taskTitle = ''
+      // this.radioPick = 'once'
+      // this.showMoreOptions = false
+      // this.selectedDate = this.current.year + '-' +this.current.month + '-' + this.current.date;
+    },
+
+    refresh(){
+			// db.database().ref(this.roomcode).on('value', snapshot => {
+			// 	const data = snapshot.val();
+			// 	let messages = [];
+
+			// 	Object.keys(data).forEach(key => {
+			// 		messages.push({
+			// 			id: key,
+			// 			username: data[key].username,
+			// 			content: data[key].content,
+      //       avatar: data[key].avatar,
+			// 		});
+			// 	});
+
+			// 	this.messages = messages;
+
+      //   let theWord = this.messages[this.messages.length-1].content
+      //   // let theChar = theWord.slice(-1)
+      //   // console.log(theWord)
+      //   // console.log(theChar)
+        
+      //   // if(theChar !== '.' || theChar !== '!'  )
+      //   if(this.messages.length > 2  ){
+      //     this.wordHitory.push(theWord)
+      //     // console.log(this.wordHitory)
+      //     const headCandidates = this.getHeadCandidate(theWord)
+      //     this.nextHeadCandidates = headCandidates
+      //   }
+        
+
+			// 	window.scrollTo(0,document.body.scrollHeight);
+			// 	// console.log(document.getElementById('chattt').scrollHeight)
+			// });
+		},
+
+    setUpAsAHost(){
+      console.log('setting as a host')
+      let count = 0
+      let horizontal =0
+      let vertical = 0
+
+      // while(count<28){
+      //   let randomNum =Math.floor(Math.random() * 51);
+      //   c
+      //   if(this.deckDetail[randomNum].location == 'deck'){
+      //     this.deckDetail[randomNum].location = 'field'
+      //     this.deckDetail[randomNum].x = horizontal
+      //     this.deckDetail[randomNum].y = vertical
+      //     vertical++
+      //     // this.deckDetail[randomNum].isOpened = false
+
+      //     if(horizontal== 0 &&  vertical ==1){
+      //       this.deckDetail[randomNum].isOpened = true
+      //       horizontal++
+      //       vertical =0
+      //     }else if(horizontal == 1 && vertical ==2){
+      //       this.deckDetail[randomNum].isOpened = true
+      //       horizontal++
+      //       vertical =0
+      //     }else if(horizontal == 2 && vertical ==3){
+      //       this.deckDetail[randomNum].isOpened = true
+      //       horizontal++
+      //       vertical =0
+      //       if(this.needSound)  this.shuffle_audio.play();
+      //     }else if(horizontal == 3 && vertical ==4){
+      //       this.deckDetail[randomNum].isOpened = true
+      //       horizontal++
+      //       vertical =0
+      //     }else if(horizontal == 4 && vertical ==5){
+      //       this.deckDetail[randomNum].isOpened = true
+      //       horizontal++
+      //       vertical =0
+      //     }else if(horizontal == 5  && vertical ==6){
+      //       this.deckDetail[randomNum].isOpened = true
+      //       horizontal++
+      //       vertical =0
+      //     }else if(horizontal == 6  && vertical ==7){
+      //       this.deckDetail[randomNum].isOpened = true
+      //       horizontal++
+      //       vertical =0
+      //     }else{
+      //       this.deckDetail[randomNum].isOpened = false
+      //     }
+
+
+          
+      //     count++
+      //   }
+      // }
+
+      
+
+      while(count<28){
+        let randomNum =Math.floor(Math.random() * 51);
+        let card = this.tempDeck[randomNum]
+        if(card.location == 'deck'){
+          card.location = 'field'
+          card.x = horizontal
+          card.y = vertical
+          vertical++
+          // this.deckDetail[randomNum].isOpened = false
+
+          if(horizontal== 0 &&  vertical ==1){
+            card.isOpened = true
+            horizontal++
+            vertical =0
+          }else if(horizontal == 1 && vertical ==2){
+            card.isOpened = true
+            horizontal++
+            vertical =0
+          }else if(horizontal == 2 && vertical ==3){
+            card.isOpened = true
+            horizontal++
+            vertical =0
+            if(this.needSound)  this.shuffle_audio.play();
+          }else if(horizontal == 3 && vertical ==4){
+            card.isOpened = true
+            horizontal++
+            vertical =0
+          }else if(horizontal == 4 && vertical ==5){
+            card.isOpened = true
+            horizontal++
+            vertical =0
+          }else if(horizontal == 5  && vertical ==6){
+            card.isOpened = true
+            horizontal++
+            vertical =0
+          }else if(horizontal == 6  && vertical ==7){
+            card.isOpened = true
+            horizontal++
+            vertical =0
+          }else{
+            card.isOpened = false
+          }
+
+
+          
+          count++
+        }
+      }
+
+      
+      // this.tempDeck = this.deckDetail
+      // console.log(this.deckDetail)
+      console.log(this.tempDeck)
+
+      // for(let i in this.deckDetail){
+      //   if(this.deckDetail[i].location == 'field' && this.deckDetail[i].isOpened){
+      //     console.log(this.deckDetail[i].cardId)
+      //   }
+      //   this.deckDetail.isOpened = false
+      //   this.deckDetail[i].location = 'deck'
+      //   this.deckDetail[i].x = 5.5
+      //   this.deckDetail[i].y = undefined
+      // }
+
+      for(let i in this.tempDeck){
+        // console.log(i)
+        let card = this.tempDeck[i]
+        if(card.isOpened && card.location == 'field'){
+          console.log(card.cardId)
+        }
+      }
+
+      
+
+      return this.tempDeck
+    }
+    
+    
+
+
   },
 
   computed:{
@@ -1355,6 +1774,17 @@ export default {
   },
 
   mounted: function(){
+
+    // username function
+    if(!localStorage.userName){
+      let randomNum = Math.floor(1000000 + Math.random() * 900000);
+      localStorage.userName = randomNum 
+      this.userName = randomNum
+    }else{
+      this.userName = localStorage.userName
+    }
+
+
     if(!localStorage.solitaire){
       // let data = []
       // data.push({gameCount: 0, moveCount: 0, wCount: 0})
@@ -1400,7 +1830,33 @@ export default {
       if(num ==13){
         num = 0
       }
+      if(count ==12){
+        
+        kind = 'spade'
+      }else if(count == 25){
+        color = 'red'
+        kind = 'heart'
+      }else if(count == 38 ){
+        kind = 'diamond'
+      }
 
+      count++
+      num++
+    
+    }
+
+    count =0
+    kind = 'club'
+    num = 1
+    color = 'black'
+    this.tempDeck =[]
+    while(count<52){
+
+      this.tempDeck.push({kind: kind,num: num,location: 'deck',x: 5.5, y: undefined, isOpened: true,color:color,cardId: `${kind}-${num}`, selected:false, movingNow: false,deckIndex: count,zCount: 0})
+
+      if(num ==13){
+        num = 0
+      }
       if(count ==12){
         
         kind = 'spade'
@@ -1420,6 +1876,8 @@ export default {
 
     // console.log(this.deckDetail)
   },
+
+  
 
   watch:{
 
@@ -1593,8 +2051,19 @@ body {
 .totalDetail{
   /* background-color: red; */
   position:absolute;
-  bottom: 12.5px;
+  bottom: 33.5px;
   text-align: left;
+  /* width: 100%; */
+  /* height: 100px; */
+}
+
+.extra{
+  /* background-color: red; */
+  position:absolute;
+  bottom: 8.5px;
+  /* text-align: left; */
+  float: right;
+  display: flex;
   /* width: 100%; */
   /* height: 100px; */
 }
@@ -1748,6 +2217,142 @@ body {
   transform: translateX(20px);
   opacity: 0;
 }
+
+
+
+/* ----- modal */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* bottom: 0; */
+  /* height: 667px; */
+  z-index: 98;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99;
+  
+  width: 75%;
+  max-width: 400px;
+  background-color: #f2f2f2;
+  border-radius: 16px;
+  
+  padding: 25px;
+}
+
+.modal h1 {
+  color: #222;
+  font-size: 32px;
+  font-weight: 900;
+  margin-bottom: 15px;
+}
+ 
+.modal p {
+  color: #666;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 15px;
+}
+
+.fade-in {
+	opacity: 1;
+	animation-name: fadeInOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-in;
+	animation-duration: .4s;
+}
+@keyframes fadeInOpacity {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+input[type=number], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.modal  .create {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal  .join {
+  width: 100%;
+  background-color: #6495ed;
+  color: white;
+  padding: 14px 20px;
+  margin: 5px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal  .cancel {
+  width: 100%;
+  background-color: firebrick;
+  color: white;
+  padding: 14px 20px;
+  margin: 20px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.undo-button{
+  float:right;
+  margin-right:15px;
+  width: auto;
+  background-color: grey;
+  color: white;
+  padding: 4px 5px;
+  /* margin: 5px 0; */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 
 
 
