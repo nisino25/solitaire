@@ -315,7 +315,7 @@ export default {
       let count = 0
       while(this.deckNum !== 0){
         
-        console.log('heu')
+        // console.log('heu')
         let flag = false
         while(!flag){
           count++
@@ -363,6 +363,7 @@ export default {
       }
 
       if(this.isMixedOver){
+        console.log('hey')
 
         if(this.needSound) {
           this.deal_auido.play()
@@ -374,6 +375,7 @@ export default {
             this.deckDetail[theIndex].location = 'side'
             this.deckDetail[theIndex].isOpened = true
             this.deckDetail[theIndex].sideCount= this.sideCount
+            this.deckDetail[theIndex].zCount= this.moveCount
             
             this.deckDetail[theIndex].x = 11
             this.sideCount++
