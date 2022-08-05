@@ -122,12 +122,28 @@
         </div>
 
         <div class="extra">
-          <div class="button button2" @click="showModal=true" style="background-color:  darkgrey; left:10px" >Multiplayer</div>
-          <!-- <span v-if="playingInARoom" style="left:10px">Room Code: {{roomCode}}</span>
+          <div class="button button2" @click="showModal=true" style="background-color:  darkgrey; left:10px; height: 20px; "  v-if="!playingInARoom">Multiplayer</div>
+          <!-- <span v-if="playingInARoom" style="left:10px">Room Code: {{roomCode}}</span>..
           <span v-if="playingInARoom && onlineStatus == 'playing'" style="left:100px"><i class="fa fa-user" style="font-size:24px"></i>{{opponent}}</span> -->
 
-          <span v-if="playingInARoom" style="margin-left:-15px">Room Code: {{roomCode}},</span>
-          <i v-if="playingInARoom && onlineStatus == 'playing'"  class="fa fa-user" style="font-size:24px; margin-left: 5px"></i><span v-if="playingInARoom && onlineStatus == 'playing'"  style="margin-left: 0px">&nbsp; {{opponent}}</span>
+          <div style="bottom: 0px; display: flex; ">
+
+            <span v-if="playingInARoom" style="margin-left:0px;">
+              <i style="font-size:24px" class="fa fa-home"></i> {{roomCode}}
+            </span>
+
+            <span :style="[parseInt(remainsOfOpponents) == 0 ? 'color:crimson' : '']" v-if="playingInARoom && onlineStatus == 'playing'">
+            <i class="fa fa-user" style="font-size:24px; margin-left: 5px;margin-right: 4px;"  ></i>
+              <span>{{opponent}}</span>
+
+            </span>
+
+            <span>
+              <img v-if="playingInARoom && onlineStatus == 'playing'" style="width: 35px; height: auto; display: block; margin-top: -3px"   src="../public/trumpIcon.svg" alt=""> 
+            </span>
+            <span v-if="playingInARoom && onlineStatus == 'playing'" style="margin-top: 5px;">{{remainsOfOpponents}} left</span>
+            <!-- {{onlineStatus}} -->
+          </div>
           
         </div>
 
@@ -159,7 +175,7 @@
         <div class='modal-overlay fade-in' v-if="showModal" style="height: 100vh">
           <div class="modal">
 
-            <div>
+            <div v-if="!playingInARoom">
               <form onsubmit="event.preventDefault()">
                 <label for="fname">Username</label>
                 <input type="text" placeholder="User name.." v-model="userName" >
@@ -174,6 +190,31 @@
                 <button @click="closingModal()" class="cancel" >Cancel</button>
 
               </form>
+            </div>
+
+            <div v-if="playingInARoom && onlineStatus == 'waiting'">
+              <span>Room Code: <strong style="font-size:175%">{{roomCode}}</strong></span><br>
+              <div class="loader"></div>
+            </div>
+
+            <div v-if="playingInARoom && onlineStatus == 'playing' && onlineRoll == 'host'">
+              <span><strong style="font-size:175%">{{opponent}}</strong><br> just joined the room!</span><br>
+              <hr>
+
+              <div>
+                The Game Starts in <br>
+                <strong style="font-size:175%; color: red">{{playingCountDown}}</strong>
+              </div>
+            </div>
+
+            <div v-if="playingInARoom && onlineStatus == 'playing' && onlineRoll== 'guest'">
+              <span>You just joined the room of <br><strong style="font-size:175%">{{opponent}}</strong></span><br>
+              <hr>
+
+              <div>
+                The Game Starts in <br>
+                <strong style="font-size:175%; color: red">{{playingCountDown}}</strong>
+              </div>
             </div>
 
           </div>
@@ -211,7 +252,12 @@ export default {
       warning: undefined,
       tempDeck: [],
       onlineStatus: 'none',
+      onlineRoll: undefined,
       opponent: '',
+      remainsOfOpponents: '21',
+      playingCountDown: '',
+      hasEverCounted: false,
+      beenHere: false,
 
       isGameOver: false,
       hasClened: false,
@@ -238,7 +284,11 @@ export default {
       needSound: true,
 
       shuffle_audio: new Audio(require('@/assets/sounds/shuffle_sound.wav')),
-      deal_auido: new Audio(require('@/assets/sounds/deal.wav')),
+      deal_audio: new Audio(require('@/assets/sounds/deal.wav')),
+      room_audio: new Audio(require('@/assets/sounds/roomSound.wav')),
+      someoneJoined_audio: new Audio(require('@/assets/sounds/someoneJoined.wav')),
+      stick_audio: new Audio(require('@/assets/sounds/stick.wav')),
+      beep_audio: new Audio(require('@/assets/sounds/beep.wav')),
 
       showModal: false,
       // My Movie 1.m4a
@@ -379,11 +429,11 @@ export default {
           this.deckDetail[i] = this.tempDeck[i]
         }
         // this.deckDetail = this.tempDeck
-        console.log(this.tempDeck)
+        // console.log(this.tempDeck)
         for(let i in this.tempDeck){
           let card = this.tempDeck[i]
           if(card.isOpened && card.location == 'field'){
-            console.log(card.cardId)
+              //  /console.log(card.cardId)
           }
         }
         console.log('fixing again')
@@ -449,7 +499,7 @@ export default {
         console.log('hey')
 
         if(this.needSound) {
-          this.deal_auido.play()
+          this.deal_audio.play()
         }
 
         for(let i in this.shuffledIndex){
@@ -489,7 +539,7 @@ export default {
       // let myAudio = document.getElementById('myAudio');
       
       if(this.needSound) {
-        this.deal_auido.play()
+        this.deal_audio.play()
       }
       
     },
@@ -759,7 +809,7 @@ export default {
           break;
       }
       if(this.needSound) {
-          this.deal_auido.play()
+          this.deal_audio.play()
         }
       
 
@@ -974,8 +1024,8 @@ export default {
         this.hasSelectedCard = false
         previous.movingNow = true
 
-        // this.deal_auido.pause()
-        if(this.needSound)  this.deal_auido.play()
+        // this.deal_audio.pause()
+        if(this.needSound)  this.deal_audio.play()
         
         this.allUnselected()
         // setTimeout(() => this.basketAddSuccess = false, 2000);
@@ -1297,7 +1347,7 @@ export default {
         char = randomChars.charAt(Math.floor(Math.random() * randomChars.length));
         if(char === 'l' || char === 'I' || char === 'o'  || char === 'O' || char === '0'){
           // since it is really hard to distinguishj I and l
-          console.log(`I hate ${char} || ${i}`) 
+          // console.log(`I hate ${char} || ${i}`) 
           i--;
         }else{
 					result += char
@@ -1317,6 +1367,8 @@ export default {
         return;
       }
 
+      this.onlineRoll = 'host'
+
       localStorage.userName = this.userName
 
       console.log('sending data')
@@ -1327,41 +1379,27 @@ export default {
         gameStatus: 'waiting',
         deck: JSON.stringify(this.setUpAsAHost()),
         shuffle: JSON.stringify(this.shuffledIndex),
-
-
-        
-        // joinedplayer: '',
-        // createdTime: Date.now(),
-        // password: this.needPassword,
-        // status: 'waiting',
-        // roomNumber: this.userNum,
-        // guestID: '',
-        // rejected: '',
+        // surrenderByWho: JSON.stringify( undefined),
+        results: JSON.stringify([]),
+        remainsOfHosts: String(21),
 
 
       })
       this.roomCode = result
 
       this.playingInARoom = true
-      console.log(this.roomCode)
-      this.showModal = false
+      // this.showModal = false
+      console.log('im back')
       this.onlineStatus = 'waiting'
 
       // this.hasGameStarted = true
 
       this.ReciveTheData()
 
-      // console.log('Sent data now')
-
-      // this.showingPage = 'waiting'
-      // this.playerRole = 'host'
-      
-      // this.theRoom.isItOpen = true
-
     },
 
 
-    async joinARoom(){
+    joinARoom(){
       console.log('trying to join ' + this.roomCode )
       localStorage.userName = this.userName
       
@@ -1369,30 +1407,37 @@ export default {
       ref.get()
         .then((docSnapshot) => {
           if (docSnapshot.exists) {
-            console.log('yaas')
+            if(this.onlineStatus == 'playing') 
+            console.log('jeus')
+            // console.log('yaas')
             this.warning = undefined
             ref.onSnapshot((doc) => {
-              console.log(doc.data())
+              // console.log(doc.data())
               
-              ref.update({
-                guestName: this.userName,
-                gameStatus: 'playing',
-              })
+              
 
               this.playingInARoom = true
-              console.log(this.roomCode)
-              this.showModal = false
+              // console.log(this.roomCode)
+              // this.showModal = false
               // this.hasGameStarted = true
-              console.log(doc.data().hostName)
+              // console.log(doc.data().hostName)
               this.opponent = doc.data().hostName
-              this.onlineStatus= 'playing'
+              this.onlineStatus= 'waiting'
 
               this.isMixedOver = true
               this.shuffledIndex = JSON.parse(doc.data().shuffle)
               this.tempDeck = JSON.parse(doc.data().deck)
 
+              ref.update({
+                guestName: this.userName,
+                gameStatus: 'playing',
+                // remainsOfGuests: String(t)
+              })
+              // this.countingToStartGame()
+
 
               this.ReciveTheData()
+              return
               
             });
           } else {
@@ -1401,30 +1446,44 @@ export default {
           }
       });
 
+      this.onlineRoll = 'guest'
+
     },
 
     ReciveTheData(){
-      // db.collection('solitaire').onSnapshot(snap => {
-      // snap.forEach(doc => {
-      //   // this.waitingRoom.status = ''
-
-      //   console.log(doc(`${this.roomCode}`).data())
-      //   // console.log(this.theRoom)
-      // });
-      // })
+      
 
       db.collection("solitaire").doc(`${this.roomCode}`)
       .onSnapshot((doc) => {
+
         if(this.onlineStatus == 'waiting'){
           if(doc.data().gameStatus == 'playing'){
+            
             this.onlineStatus= 'playing'
             // console.log(doc.data().guestName)
-            this.opponent= doc.data().guestName
+            if(this.onlineRoll == 'host')this.opponent= doc.data().guestName
+            this.someoneJoined_audio.volume = 0.2;
+            // let playedSound = false
+            if(this.needSound && !this.beenHere)  this.someoneJoined_audio.play()
+            this.beenHere = true
+            // playedSound = true
+            console.log(this.onlineStatus)
+            console.log('are you reaghin here')
+            this.remainsOfOpponents =  this.getRemains(doc.data())
+            this.countingToStartGame()
           }
+          return 
         }
-        console.log(doc.data().gameStatus)
-          // var source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-          // console.log(source, " data: ", doc.data());
+
+        if(this.onlineStatus == 'playing'){
+          console.log('reaghin here')
+          // this.remainsOfOpponents
+          this.remainsOfOpponents =  this.getRemains(doc.data())
+          // console.log(this.remainsOfOpponents )
+          
+        }
+
+        
       });
 
 
@@ -1435,101 +1494,13 @@ export default {
       this.warning = undefined
       this.showModal = false
       this.roomCode =undefined
-      // this.taskTitle = ''
-      // this.radioPick = 'once'
-      // this.showMoreOptions = false
-      // this.selectedDate = this.current.year + '-' +this.current.month + '-' + this.current.date;
     },
-
-    refresh(){
-			// db.database().ref(this.roomcode).on('value', snapshot => {
-			// 	const data = snapshot.val();
-			// 	let messages = [];
-
-			// 	Object.keys(data).forEach(key => {
-			// 		messages.push({
-			// 			id: key,
-			// 			username: data[key].username,
-			// 			content: data[key].content,
-      //       avatar: data[key].avatar,
-			// 		});
-			// 	});
-
-			// 	this.messages = messages;
-
-      //   let theWord = this.messages[this.messages.length-1].content
-      //   // let theChar = theWord.slice(-1)
-      //   // console.log(theWord)
-      //   // console.log(theChar)
-        
-      //   // if(theChar !== '.' || theChar !== '!'  )
-      //   if(this.messages.length > 2  ){
-      //     this.wordHitory.push(theWord)
-      //     // console.log(this.wordHitory)
-      //     const headCandidates = this.getHeadCandidate(theWord)
-      //     this.nextHeadCandidates = headCandidates
-      //   }
-        
-
-			// 	window.scrollTo(0,document.body.scrollHeight);
-			// 	// console.log(document.getElementById('chattt').scrollHeight)
-			// });
-		},
 
     setUpAsAHost(){
       console.log('setting as a host')
       let count = 0
       let horizontal =0
       let vertical = 0
-
-      // while(count<28){
-      //   let randomNum =Math.floor(Math.random() * 51);
-      //   c
-      //   if(this.deckDetail[randomNum].location == 'deck'){
-      //     this.deckDetail[randomNum].location = 'field'
-      //     this.deckDetail[randomNum].x = horizontal
-      //     this.deckDetail[randomNum].y = vertical
-      //     vertical++
-      //     // this.deckDetail[randomNum].isOpened = false
-
-      //     if(horizontal== 0 &&  vertical ==1){
-      //       this.deckDetail[randomNum].isOpened = true
-      //       horizontal++
-      //       vertical =0
-      //     }else if(horizontal == 1 && vertical ==2){
-      //       this.deckDetail[randomNum].isOpened = true
-      //       horizontal++
-      //       vertical =0
-      //     }else if(horizontal == 2 && vertical ==3){
-      //       this.deckDetail[randomNum].isOpened = true
-      //       horizontal++
-      //       vertical =0
-      //       if(this.needSound)  this.shuffle_audio.play();
-      //     }else if(horizontal == 3 && vertical ==4){
-      //       this.deckDetail[randomNum].isOpened = true
-      //       horizontal++
-      //       vertical =0
-      //     }else if(horizontal == 4 && vertical ==5){
-      //       this.deckDetail[randomNum].isOpened = true
-      //       horizontal++
-      //       vertical =0
-      //     }else if(horizontal == 5  && vertical ==6){
-      //       this.deckDetail[randomNum].isOpened = true
-      //       horizontal++
-      //       vertical =0
-      //     }else if(horizontal == 6  && vertical ==7){
-      //       this.deckDetail[randomNum].isOpened = true
-      //       horizontal++
-      //       vertical =0
-      //     }else{
-      //       this.deckDetail[randomNum].isOpened = false
-      //     }
-
-
-          
-      //     count++
-      //   }
-      // }
 
       
 
@@ -1555,7 +1526,7 @@ export default {
             card.isOpened = true
             horizontal++
             vertical =0
-            if(this.needSound)  this.shuffle_audio.play();
+            if(this.needSound)  this.room_audio.play();
           }else if(horizontal == 3 && vertical ==4){
             card.isOpened = true
             horizontal++
@@ -1583,32 +1554,52 @@ export default {
       }
 
       
-      // this.tempDeck = this.deckDetail
-      // console.log(this.deckDetail)
-      console.log(this.tempDeck)
+      // console.log(this.tempDeck)
 
-      // for(let i in this.deckDetail){
-      //   if(this.deckDetail[i].location == 'field' && this.deckDetail[i].isOpened){
-      //     console.log(this.deckDetail[i].cardId)
-      //   }
-      //   this.deckDetail.isOpened = false
-      //   this.deckDetail[i].location = 'deck'
-      //   this.deckDetail[i].x = 5.5
-      //   this.deckDetail[i].y = undefined
+      // for(let i in this.tempDeck){
+      //   // console.log(i)
+      //   // let card = this.tempDeck[i]
+      //   // if(card.isOpened && card.location == 'field'){
+      //   //   // console.log(card.cardId)
+      //   // }
       // }
-
-      for(let i in this.tempDeck){
-        // console.log(i)
-        let card = this.tempDeck[i]
-        if(card.isOpened && card.location == 'field'){
-          console.log(card.cardId)
-        }
-      }
 
       
 
       return this.tempDeck
-    }
+    },
+
+
+    async countingToStartGame(){
+      if(this.hasEverCounted)  return
+      this.hasEverCounted = true
+
+      await this.sleep(1500)
+      this.playingCountDown = 3
+      
+      if(this.needSound)  this.stick_audio.play()
+      await this.sleep(1000)
+      this.playingCountDown--
+      if(this.needSound)  this.stick_audio.play()
+      await this.sleep(1000)
+      this.playingCountDown--
+      if(this.needSound)  this.stick_audio.play()
+      await this.sleep(1000)
+      this.playingCountDown--
+      if(this.needSound)  this.beep_audio.play()
+      await this.sleep(1000)
+
+      this.showModal =false
+      this.onlineStatus = 'playing'
+    },
+
+    getRemains(data){
+      if(this.onlineRoll == 'host'){
+        return data.remainsOfGuests 
+      }else{
+        return data.remainsOfHosts 
+      }
+    },
     
     
 
@@ -1726,6 +1717,19 @@ export default {
       let count =0
       for (let i in this.deckDetail){
         if(this.deckDetail[i].location == 'deck'){
+          count++
+        }
+      }
+      return count
+    },
+
+    unoponedCount: function(){
+      if(!this.hasGameStarted) return 52
+
+      let count =0
+      for (let i in this.deckDetail){
+        let card = this.deckDetail[i]
+        if(card.location == 'field' && !card.isOpened ){
           count++
         }
       }
@@ -1877,8 +1881,6 @@ export default {
     // console.log(this.deckDetail)
   },
 
-  
-
   watch:{
 
     rows: {
@@ -1929,6 +1931,25 @@ export default {
       let num = JSON.parse(localStorage.moveCount);  
       localStorage.moveCount  = JSON.stringify(num +1);  
     },
+
+    unoponedCount(){
+      if(this.moveCount == 0 || !this.playingInARoom) return
+
+      console.log('sending data')
+      const ref = db.collection('solitaire')
+      if(this.onlineRoll == 'host'){
+        ref.doc(`${this.roomCode}`).update({
+          remainsOfHosts: String(this.unoponedCount)
+          
+        })
+        console.log('sending data as a host')
+      }else{
+        ref.doc(`${this.roomCode}`).update({
+          remainsOfGuests: String(this.unoponedCount)
+        })
+        console.log('sending data as a guest')
+      }
+    }
     
   },
 }
@@ -2060,7 +2081,7 @@ body {
 .extra{
   /* background-color: red; */
   position:absolute;
-  bottom: 8.5px;
+  bottom: 1.5px;
   /* text-align: left; */
   float: right;
   display: flex;
@@ -2352,6 +2373,36 @@ input[type=number], select {
   border-radius: 4px;
   cursor: pointer;
 }
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 80px;
+  height: 80px;
+
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+
+  margin: 30px auto;
+
+  
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+/* ----------------------------- */
 
 
 
