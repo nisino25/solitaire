@@ -1282,46 +1282,12 @@ export default {
           console.log(`${theCard.cardId}:${theCard.sideCount}`)
           theCard.location = 'deck'
           theCard.sideCount = 0
+          if(this.needSound) this.deal_audio.play()
+          
         }
       }
 
 
-
-      // if(this.deckDetail[theIndex].location == 'deck'){
-      //   // this.deckDetail[theIndex].location = 'side'
-      //   // this.deckDetail[theIndex].isOpened = true
-      //   // this.deckDetail[theIndex].sideCount= this.sideCount
-        
-      //   // this.deckDetail[theIndex].x = 11
-      //   // this.sideCount++
-      //   // this.moveCount++
-        
-      //   // return
-
-      // }
-
-      // let randomNum =Math.floor(Math.random() * 52);
-      //   if(this.deckDetail[randomNum].location == 'deck'){
-      //     this.shuffledIndex.push(randomNum)
-
-      //     this.deckDetail[randomNum].location = 'side'
-      //     this.deckDetail[randomNum].sideCount= this.sideCount
-      //     // this.dekDetail[randomNum].x = 4.5
-      //     this.deckDetail[randomNum].isOpened = true
-      //     this.sideCount++
-      //     this.deckDetail[randomNum].zCount= this.moveCount
-      //     flag =true
-      //     this.moveCount++
-      //   }
-
-      //   if(this.needSound)  this.shuffle_audio.play()
-      //   this.isMixedOver = true
-      //   for (let i in this.deckDetail){
-      //     if(this.deckDetail[i].location == 'side'){
-      //       this.deckDetail[i].location = 'deck'
-      //       this.deckDetail[i].sideCount = 0
-      //     }
-      //   }
 
     },
 
