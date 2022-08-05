@@ -1577,13 +1577,13 @@ export default {
       await this.sleep(1500)
       this.playingCountDown = 3
       
-      if(this.needSound)  this.stick_audio.play()
+      // if(this.needSound)  this.stick_audio.play()
       await this.sleep(1000)
       this.playingCountDown--
-      if(this.needSound)  this.stick_audio.play()
+      // if(this.needSound)  this.stick_audio.play()
       await this.sleep(1000)
       this.playingCountDown--
-      if(this.needSound)  this.stick_audio.play()
+      // if(this.needSound)  this.stick_audio.play()
       await this.sleep(1000)
       this.playingCountDown--
       if(this.needSound)  this.beep_audio.play()
